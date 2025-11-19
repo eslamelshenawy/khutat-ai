@@ -17,7 +17,15 @@ class BusinessPlanResource extends Resource
 {
     protected static ?string $model = BusinessPlan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    protected static ?string $navigationLabel = 'خطط الأعمال';
+
+    protected static ?string $modelLabel = 'خطة عمل';
+
+    protected static ?string $pluralModelLabel = 'خطط الأعمال';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -87,72 +95,99 @@ class BusinessPlanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('template_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('project_type'),
-                Tables\Columns\TextColumn::make('industry_type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                    ->label('العنوان')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(50)
+                    ->weight('bold'),
+
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('المستخدم')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\BadgeColumn::make('status')
+                    ->label('الحالة')
+                    ->colors([
+                        'warning' => 'draft',
+                        'primary' => 'in_progress',
+                        'success' => 'completed',
+                        'danger' => 'archived',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'draft' => 'مسودة',
+                        'in_progress' => 'قيد التنفيذ',
+                        'completed' => 'مكتمل',
+                        'archived' => 'مؤرشف',
+                        default => $state,
+                    })
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('completion_percentage')
+                    ->label('نسبة الإنجاز')
+                    ->suffix('%')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('ai_score')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('last_analyzed_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('company_name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('company_logo')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('language')
-                    ->searchable(),
+                    ->sortable()
+                    ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger')),
+
+                Tables\Columns\TextColumn::make('chapters_count')
+                    ->label('عدد الفصول')
+                    ->counts('chapters')
+                    ->badge()
+                    ->color('info'),
+
                 Tables\Columns\IconColumn::make('is_public')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('allow_comments')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('version')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('parent_plan_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('published_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('عام')
+                    ->boolean()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('تاريخ الإنشاء')
+                    ->dateTime('Y-m-d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('آخر تحديث')
+                    ->dateTime('Y-m-d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('الحالة')
+                    ->options([
+                        'draft' => 'مسودة',
+                        'in_progress' => 'قيد التنفيذ',
+                        'completed' => 'مكتمل',
+                        'archived' => 'مؤرشف',
+                    ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('wizard')
+                    ->label('المعالج')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('success')
+                    ->url(fn (BusinessPlan $record): string => route('wizard.steps', ['businessPlan' => $record->id])),
+
+                Tables\Actions\ViewAction::make()
+                    ->label('عرض'),
+
+                Tables\Actions\EditAction::make()
+                    ->label('تعديل'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->label('حذف'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('حذف المحدد'),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

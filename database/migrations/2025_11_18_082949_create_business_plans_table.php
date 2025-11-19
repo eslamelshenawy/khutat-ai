@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             // Project type
-            $table->enum('project_type', ['startup', 'existing', 'expansion', 'investment'])->default('startup');
+            $table->enum('project_type', ['new_business', 'existing_expansion', 'franchise', 'startup'])->default('new_business');
 
             // Industry type
             $table->string('industry_type', 100)->nullable();

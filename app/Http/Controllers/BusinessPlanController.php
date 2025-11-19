@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Gate;
 
 class BusinessPlanController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $businessPlans = auth()->user()->businessPlans()
@@ -37,7 +32,7 @@ class BusinessPlanController extends Controller
     {
         Gate::authorize('update', $businessPlan);
 
-        return redirect()->route('wizard.steps', $businessPlan);
+        return redirect()->route('wizard.steps', ['businessPlan' => $businessPlan->id]);
     }
 
     public function destroy(BusinessPlan $businessPlan)

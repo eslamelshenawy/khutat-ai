@@ -1,14 +1,35 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Wizard\WizardStart;
-use App\Livewire\Wizard\WizardSteps;
+use App\Livewire\WizardStart;
+use App\Livewire\WizardSteps;
 use App\Livewire\Wizard\ChapterEditor;
 use App\Http\Controllers\BusinessPlanController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Test CSS Route
+Route::get('/test-css', function () {
+    return view('test-css');
+});
+
+// Auth Routes
+Route::get('/login', function () {
+    return redirect('/admin/login');
+})->name('login');
+
+Route::get('/register', function () {
+    return redirect('/admin/register');
+})->name('register');
+
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
 
 // Wizard Routes
 Route::middleware(['auth'])->group(function () {

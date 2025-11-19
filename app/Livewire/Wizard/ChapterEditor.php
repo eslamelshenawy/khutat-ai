@@ -4,7 +4,7 @@ namespace App\Livewire\Wizard;
 
 use App\Models\BusinessPlan;
 use App\Models\Chapter;
-use App\Services\OpenAIService;
+use App\Services\OllamaService;
 use Livewire\Component;
 
 class ChapterEditor extends Component
@@ -17,17 +17,17 @@ class ChapterEditor extends Component
     public $chatMessages = [];
     public $chatInput = '';
 
-    protected $openAIService;
+    protected $ollamaService;
 
-    public function boot(OpenAIService $openAIService)
+    public function boot(OllamaService $ollamaService)
     {
-        $this->openAIService = $openAIService;
+        $this->ollamaService = $ollamaService;
     }
 
     public function mount($businessPlan)
     {
         $this->businessPlan = BusinessPlan::with('chapters')->findOrFail($businessPlan);
-        $this->chapters = $this->businessPlan->chapters()->orderBy('order')->get();
+        $this->chapters = $this->businessPlan->chapters()->orderBy('sort_order')->get();
 
         if ($this->chapters->isNotEmpty()) {
             $this->selectChapter($this->chapters->first()->id);
@@ -63,7 +63,7 @@ class ChapterEditor extends Component
             $wizardData = $this->businessPlan->businessPlanData->pluck('field_value', 'field_key')->toArray();
 
             // Generate content
-            $generatedContent = $this->openAIService->generateChapterContent($this->currentChapter, $wizardData);
+            $generatedContent = $this->ollamaService->generateChapterContent($this->currentChapter, $wizardData);
 
             $this->content = $generatedContent;
             $this->currentChapter->update([
@@ -85,7 +85,7 @@ class ChapterEditor extends Component
         $this->aiGenerating = true;
 
         try {
-            $improvedContent = $this->openAIService->improveContent($this->content, 'حسن هذا المحتوى وجعله أكثر احترافية');
+            $improvedContent = $this->ollamaService->improveContent($this->content, 'حسن هذا المحتوى وجعله أكثر احترافية');
 
             $this->content = $improvedContent;
 
@@ -109,7 +109,7 @@ class ChapterEditor extends Component
         ];
 
         try {
-            $response = $this->openAIService->chatWithAI($this->chatInput, [
+            $response = $this->ollamaService->chatWithAI($this->chatInput, [
                 'business_plan' => $this->businessPlan->toArray(),
                 'current_chapter' => $this->currentChapter->toArray(),
             ]);
@@ -139,7 +139,7 @@ class ChapterEditor extends Component
             'published_at' => now(),
         ]);
 
-        return redirect()->route('plans.show', ['businessPlan' => $this->businessPlan->id]);
+        return redirect()->route('business-plans.show', ['businessPlan' => $this->businessPlan->id]);
     }
 
     public function render()
