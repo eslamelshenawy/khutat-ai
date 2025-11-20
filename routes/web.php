@@ -15,40 +15,6 @@ Route::get('/test-css', function () {
     return view('test-css');
 });
 
-// Test Admin Access
-Route::get('/test-admin-access', function () {
-    $html = "<pre>\n";
-    $html .= "=== Admin Access Test ===\n\n";
-
-    // Check if user is authenticated
-    if (auth()->check()) {
-        $user = auth()->user();
-        $html .= "✅ User authenticated\n";
-        $html .= "   ID: {$user->id}\n";
-        $html .= "   Email: {$user->email}\n";
-        $html .= "   is_admin: {$user->is_admin}\n";
-        $html .= "   isAdmin(): " . ($user->isAdmin() ? 'TRUE' : 'FALSE') . "\n";
-
-        if (method_exists($user, 'canAccessPanel')) {
-            $html .= "   canAccessPanel() exists: YES\n";
-            try {
-                $panel = \Filament\Facades\Filament::getPanel('admin');
-                $canAccess = $user->canAccessPanel($panel);
-                $html .= "   canAccessPanel(): " . ($canAccess ? 'TRUE' : 'FALSE') . "\n";
-            } catch (\Exception $e) {
-                $html .= "   ERROR: " . $e->getMessage() . "\n";
-            }
-        } else {
-            $html .= "   canAccessPanel() exists: NO\n";
-        }
-    } else {
-        $html .= "❌ User NOT authenticated\n";
-    }
-
-    $html .= "\n</pre>";
-    return $html;
-});
-
 // Auth Routes
 Route::get('/login', function () {
     return redirect('/admin/login');
