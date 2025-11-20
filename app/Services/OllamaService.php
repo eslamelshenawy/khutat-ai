@@ -20,12 +20,12 @@ class OllamaService
     /**
      * Default model for content generation
      */
-    protected string $defaultModel = 'llama3.2';
+    protected string $defaultModel = 'gemma:2b';
 
     /**
      * Advanced model for complex analysis
      */
-    protected string $advancedModel = 'llama3.2';
+    protected string $advancedModel = 'gemma:2b';
 
     /**
      * Maximum retry attempts
