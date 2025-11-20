@@ -52,6 +52,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/plans/{businessPlan}/analyze', [BusinessPlanController::class, 'analyze'])->name('business-plans.analyze');
     Route::post('/plans/{businessPlan}/recommendations', [BusinessPlanController::class, 'recommendations'])->name('business-plans.recommendations');
 
+    // Export Routes (specific routes for each format)
+    Route::get('/plans/{businessPlan}/export-pdf', [App\Http\Controllers\BusinessPlanExportController::class, 'exportPdf'])->name('business-plans.export-pdf');
+    Route::get('/plans/{businessPlan}/export-word', [App\Http\Controllers\BusinessPlanExportController::class, 'exportWord'])->name('business-plans.export-word');
+    Route::get('/plans/{businessPlan}/export-excel', [App\Http\Controllers\BusinessPlanExportController::class, 'exportExcel'])->name('business-plans.export-excel');
+
     // AI Chat Routes
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [App\Http\Controllers\ChatController::class, 'send'])->name('chat.send');

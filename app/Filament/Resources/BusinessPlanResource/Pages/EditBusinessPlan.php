@@ -20,71 +20,20 @@ class EditBusinessPlan extends EditRecord
                 ->label('تصدير PDF')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('success')
-                ->action(function () {
-                    try {
-                        $exportService = new ExportService();
-                        $path = $exportService->exportToPDF($this->record);
-
-                        Notification::make()
-                            ->title('تم التصدير بنجاح')
-                            ->success()
-                            ->send();
-
-                        return response()->download(storage_path('app/' . $path));
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('خطأ في التصدير')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                ->url(fn () => route('business-plans.export-pdf', $this->record))
+                ->openUrlInNewTab(),
             Actions\Action::make('exportWord')
                 ->label('تصدير Word')
                 ->icon('heroicon-o-document-text')
                 ->color('info')
-                ->action(function () {
-                    try {
-                        $exportService = new ExportService();
-                        $path = $exportService->exportToWord($this->record);
-
-                        Notification::make()
-                            ->title('تم التصدير بنجاح')
-                            ->success()
-                            ->send();
-
-                        return response()->download(storage_path('app/' . $path));
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('خطأ في التصدير')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                ->url(fn () => route('business-plans.export-word', $this->record))
+                ->openUrlInNewTab(),
             Actions\Action::make('exportExcel')
                 ->label('تصدير Excel')
                 ->icon('heroicon-o-table-cells')
                 ->color('warning')
-                ->action(function () {
-                    try {
-                        $exportService = new ExportService();
-                        $path = $exportService->exportToExcel($this->record);
-
-                        Notification::make()
-                            ->title('تم التصدير بنجاح')
-                            ->success()
-                            ->send();
-
-                        return response()->download(storage_path('app/' . $path));
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('خطأ في التصدير')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                ->url(fn () => route('business-plans.export-excel', $this->record))
+                ->openUrlInNewTab(),
             Actions\DeleteAction::make(),
         ];
     }
