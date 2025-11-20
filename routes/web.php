@@ -31,8 +31,13 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
-// Wizard Routes
+// User Routes
 Route::middleware(['auth'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/analytics', [App\Http\Controllers\DashboardController::class, 'analytics'])->name('dashboard.analytics');
+
+    // Wizard Routes
     Route::get('/wizard/start', WizardStart::class)->name('wizard.start');
     Route::get('/wizard/{businessPlan}/steps', WizardSteps::class)->name('wizard.steps');
     Route::get('/wizard/{businessPlan}/chapters', ChapterEditor::class)->name('chapters.edit');
@@ -44,4 +49,19 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/plans/{businessPlan}', [BusinessPlanController::class, 'destroy'])->name('business-plans.destroy');
     Route::post('/plans/{businessPlan}/duplicate', [BusinessPlanController::class, 'duplicate'])->name('business-plans.duplicate');
     Route::get('/plans/{businessPlan}/export/{format}', [BusinessPlanController::class, 'export'])->name('business-plans.export');
+    Route::post('/plans/{businessPlan}/analyze', [BusinessPlanController::class, 'analyze'])->name('business-plans.analyze');
+    Route::post('/plans/{businessPlan}/recommendations', [BusinessPlanController::class, 'recommendations'])->name('business-plans.recommendations');
+
+    // AI Chat Routes
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [App\Http\Controllers\ChatController::class, 'send'])->name('chat.send');
+    Route::get('/chat/history', [App\Http\Controllers\ChatController::class, 'history'])->name('chat.history');
+
+    // Notification Routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{notification}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications/delete-all-read', [App\Http\Controllers\NotificationController::class, 'deleteAllRead'])->name('notifications.delete-all-read');
 });

@@ -90,4 +90,12 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(AiGeneration::class);
     }
+
+    /**
+     * Get the notifications for the user.
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
 }
