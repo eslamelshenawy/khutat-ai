@@ -27,10 +27,10 @@
     <div class="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow mb-4 overflow-hidden flex flex-col">
         <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
             @foreach($messages as $message)
-            <div class="message {{ $message->role === 'user' ? 'user-message' : 'ai-message' }}">
-                <div class="flex items-start gap-3 {{ $message->role === 'user' ? 'flex-row-reverse' : '' }}">
+            <div class="message {{ $message->is_user ? 'user-message' : 'ai-message' }}">
+                <div class="flex items-start gap-3 {{ $message->is_user ? 'flex-row-reverse' : '' }}">
                     <div class="flex-shrink-0">
-                        @if($message->role === 'user')
+                        @if($message->is_user)
                         <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -45,10 +45,10 @@
                         @endif
                     </div>
                     <div class="flex-1">
-                        <div class="message-bubble {{ $message->role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg p-4">
-                            <p class="text-sm whitespace-pre-wrap">{{ $message->content }}</p>
+                        <div class="message-bubble {{ $message->is_user ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg p-4">
+                            <p class="text-sm whitespace-pre-wrap">{{ $message->message }}</p>
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 {{ $message->role === 'user' ? 'text-left' : 'text-right' }}">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 {{ $message->is_user ? 'text-left' : 'text-right' }}">
                             {{ $message->created_at->diffForHumans() }}
                         </div>
                     </div>
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.success) {
                 // Add AI message
-                addMessage('assistant', data.ai_message.content);
+                addMessage('assistant', data.ai_message.message);
             } else {
                 throw new Error(data.error || 'حدث خطأ غير متوقع');
             }

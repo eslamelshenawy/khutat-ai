@@ -39,11 +39,25 @@ class ChatController extends Controller
         $userMessage = $request->input('message');
         $context = $request->input('context', 'general');
 
+        // Get the latest business plan or create a general chat plan
+        $businessPlan = auth()->user()->businessPlans()->latest()->first();
+        if (!$businessPlan) {
+            // Create a general chat business plan if none exists
+            $businessPlan = auth()->user()->businessPlans()->create([
+                'title' => 'محادثات عامة',
+                'company_name' => 'محادثة مع AI',
+                'project_type' => 'general',
+                'industry_type' => 'general',
+                'status' => 'draft',
+            ]);
+        }
+
         // Save user message
         $userChatMessage = auth()->user()->chatMessages()->create([
-            'role' => 'user',
-            'content' => $userMessage,
-            'context' => $context,
+            'business_plan_id' => $businessPlan->id,
+            'message' => $userMessage,
+            'is_user' => true,
+            'context' => ['type' => $context],
         ]);
 
         try {
@@ -52,10 +66,11 @@ class ChatController extends Controller
 
             // Save AI response
             $aiChatMessage = auth()->user()->chatMessages()->create([
-                'role' => 'assistant',
-                'content' => $aiResponse,
-                'context' => $context,
-                'parent_message_id' => $userChatMessage->id,
+                'business_plan_id' => $businessPlan->id,
+                'message' => $aiResponse,
+                'is_user' => false,
+                'context' => ['type' => $context, 'parent_message_id' => $userChatMessage->id],
+                'ai_model' => 'ollama',
             ]);
 
             return response()->json([
