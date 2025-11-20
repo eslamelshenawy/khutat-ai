@@ -57,4 +57,14 @@ class AdminPanelProvider extends PanelProvider
                 \App\Http\Middleware\CheckIsAdmin::class,
             ]);
     }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        // Gate to check if user can access admin panel
+        \Illuminate\Support\Facades\Gate::define('access-admin-panel', function ($user) {
+            return $user && $user->isAdmin();
+        });
+    }
 }
