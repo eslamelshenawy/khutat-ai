@@ -28,10 +28,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->authGuard('web')
-            ->authMiddleware([
-                Authenticate::class,
-            ])
-            ->accessCheckCallback(fn () => auth()->check() && auth()->user()->isAdmin())
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -57,7 +53,8 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                // Remove duplicate auth middleware since we already added it above
+                Authenticate::class,
+                \App\Http\Middleware\CheckIsAdmin::class,
             ]);
     }
 }
