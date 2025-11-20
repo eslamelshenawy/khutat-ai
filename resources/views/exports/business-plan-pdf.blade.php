@@ -8,11 +8,15 @@
             margin: 2cm;
         }
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'dejavu sans', sans-serif;
             direction: rtl;
             text-align: right;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        * {
+            font-family: 'dejavu sans', sans-serif;
         }
         .header {
             text-align: center;

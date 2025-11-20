@@ -21,12 +21,16 @@ class ExportService
         // Load the business plan with all relationships
         $plan->load(['chapters', 'template', 'user']);
 
-        // Generate PDF
+        // Generate PDF with Arabic support
         $pdf = Pdf::loadView('exports.business-plan-pdf', [
             'plan' => $plan,
         ])->setPaper('a4', 'portrait')
           ->setOption('isHtml5ParserEnabled', true)
-          ->setOption('isRemoteEnabled', true);
+          ->setOption('isRemoteEnabled', true)
+          ->setOption('defaultFont', 'dejavu sans')
+          ->setOption('fontHeightRatio', 1.1)
+          ->setOption('isPhpEnabled', false)
+          ->setOption('isFontSubsettingEnabled', true);
 
         // Generate filename
         $filename = $this->generateFilename($plan, 'pdf');
