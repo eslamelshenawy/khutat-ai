@@ -18,15 +18,18 @@ class DummyDataSeeder extends Seeder
         // Create 10 dummy users
         $users = [];
         for ($i = 1; $i <= 10; $i++) {
-            $users[] = User::create([
-                'name' => "User {$i}",
-                'email' => "user{$i}@example.com",
-                'password' => Hash::make('password'),
-                'is_admin' => false,
-            ]);
+            $user = User::firstOrCreate(
+                ['email' => "user{$i}@example.com"],
+                [
+                    'name' => "User {$i}",
+                    'password' => Hash::make('password'),
+                    'is_admin' => false,
+                ]
+            );
+            $users[] = $user;
         }
 
-        $this->command->info('Created 10 dummy users');
+        $this->command->info('Created/found 10 dummy users');
 
         // Create templates if they don't exist
         $templates = [
