@@ -134,10 +134,7 @@ class RecommendationService
         $prompt .= '{"recommendations": [{"title": "عنوان", "description": "وصف", "priority": "high/medium/low", "action_items": ["خطوة 1", "خطوة 2"]}]}';
 
         try {
-            $response = $this->ollamaService->generateText($prompt, [
-                'max_tokens' => 1000,
-                'temperature' => 0.7,
-            ]);
+            $response = $this->ollamaService->chatWithAI($prompt);
 
             // Try to parse JSON response
             $decoded = json_decode($response, true);

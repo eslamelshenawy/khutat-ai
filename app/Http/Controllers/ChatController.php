@@ -107,15 +107,16 @@ class ChatController extends Controller
     {
         $systemPrompt = $this->getSystemPrompt($context);
 
-        $prompt = "{$systemPrompt}\n\nالمستخدم: {$userMessage}\n\nالمساعد:";
+        $prompt = "{$systemPrompt}\n\nالمستخدم: {$userMessage}";
 
         // Use Ollama service to generate response
-        $response = $this->ollamaService->generateText($prompt, [
-            'max_tokens' => 1000,
-            'temperature' => 0.7,
-        ]);
-
-        return $response ?? 'عذراً، لم أتمكن من توليد رد مناسب. يرجى المحاولة مرة أخرى.';
+        try {
+            $response = $this->ollamaService->chatWithAI($prompt);
+            return $response ?: 'عذراً، لم أتمكن من توليد رد مناسب. يرجى المحاولة مرة أخرى.';
+        } catch (\Exception $e) {
+            \Log::error('Chat AI generation failed', ['error' => $e->getMessage()]);
+            return 'عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى لاحقاً.';
+        }
     }
 
     protected function getSystemPrompt(string $context): string
