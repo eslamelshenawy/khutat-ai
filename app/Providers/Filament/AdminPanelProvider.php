@@ -6,6 +6,8 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -40,6 +42,34 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make('إدارة المحتوى'),
+                NavigationGroup::make('الميزات الإضافية'),
+            ])
+            ->navigationItems([
+                NavigationItem::make('لوحة التحكم')
+                    ->url('/dashboard')
+                    ->icon('heroicon-o-home')
+                    ->group('الميزات الإضافية')
+                    ->sort(1),
+                NavigationItem::make('محادثة AI')
+                    ->url('/chat')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->group('الميزات الإضافية')
+                    ->sort(2),
+                NavigationItem::make('الإشعارات')
+                    ->url('/notifications')
+                    ->icon('heroicon-o-bell')
+                    ->group('الميزات الإضافية')
+                    ->sort(3)
+                    ->badge(fn () => auth()->user()->notifications()->unread()->count())
+                    ->badgeColor('danger'),
+                NavigationItem::make('خططي')
+                    ->url('/plans')
+                    ->icon('heroicon-o-document-text')
+                    ->group('الميزات الإضافية')
+                    ->sort(4),
             ])
             ->middleware([
                 EncryptCookies::class,
