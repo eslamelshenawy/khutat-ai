@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\BusinessPlan;
 use App\Models\Chapter;
+use App\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class BusinessPlanController extends Controller
 {
@@ -49,27 +51,25 @@ class BusinessPlanController extends Controller
     {
         Gate::authorize('view', $businessPlan);
 
-        $businessPlan->load('chapters');
+        $exportService = new ExportService();
 
-        if ($format === 'pdf') {
-            return $this->exportPdf($businessPlan);
-        } elseif ($format === 'docx') {
-            return $this->exportDocx($businessPlan);
+        try {
+            $path = match($format) {
+                'pdf' => $exportService->exportToPDF($businessPlan),
+                'word', 'docx' => $exportService->exportToWord($businessPlan),
+                'excel', 'xlsx' => $exportService->exportToExcel($businessPlan),
+                default => null,
+            };
+
+            if (!$path) {
+                return redirect()->back()->with('error', 'صيغة التصدير غير مدعومة');
+            }
+
+            return Storage::download($path);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء التصدير: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('error', 'صيغة التصدير غير مدعومة');
-    }
-
-    protected function exportPdf(BusinessPlan $businessPlan)
-    {
-        // TODO: Implement PDF export using DomPDF or similar
-        return response()->json(['message' => 'PDF export coming soon']);
-    }
-
-    protected function exportDocx(BusinessPlan $businessPlan)
-    {
-        // TODO: Implement DOCX export using PHPWord or similar
-        return response()->json(['message' => 'DOCX export coming soon']);
     }
 
     public function duplicate(BusinessPlan $businessPlan)
