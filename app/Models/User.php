@@ -58,6 +58,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Determine if the user can access the Filament admin panel.
+     */
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
      * Get the business plans for the user.
      */
     public function businessPlans(): HasMany
