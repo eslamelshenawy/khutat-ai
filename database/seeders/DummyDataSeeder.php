@@ -32,8 +32,9 @@ class DummyDataSeeder extends Seeder
         $templates = [
             [
                 'name' => 'Technology Startup Template',
+                'slug' => 'technology-startup-template',
                 'description' => 'A comprehensive template for technology startups',
-                'industry' => 'Technology',
+                'industry_type' => 'Technology',
                 'structure' => json_encode([
                     'sections' => [
                         'Executive Summary',
@@ -44,11 +45,15 @@ class DummyDataSeeder extends Seeder
                         'Financial Projections',
                     ]
                 ]),
+                'is_active' => true,
+                'is_featured' => true,
+                'sort_order' => 1,
             ],
             [
                 'name' => 'Retail Business Template',
+                'slug' => 'retail-business-template',
                 'description' => 'Perfect for retail and e-commerce businesses',
-                'industry' => 'Retail',
+                'industry_type' => 'Retail',
                 'structure' => json_encode([
                     'sections' => [
                         'Executive Summary',
@@ -59,11 +64,15 @@ class DummyDataSeeder extends Seeder
                         'Financial Plan',
                     ]
                 ]),
+                'is_active' => true,
+                'is_featured' => false,
+                'sort_order' => 2,
             ],
             [
                 'name' => 'Restaurant Template',
+                'slug' => 'restaurant-template',
                 'description' => 'Designed for restaurant and food service businesses',
-                'industry' => 'Food & Beverage',
+                'industry_type' => 'Food & Beverage',
                 'structure' => json_encode([
                     'sections' => [
                         'Executive Summary',
@@ -74,6 +83,9 @@ class DummyDataSeeder extends Seeder
                         'Financial Projections',
                     ]
                 ]),
+                'is_active' => true,
+                'is_featured' => false,
+                'sort_order' => 3,
             ],
         ];
 
