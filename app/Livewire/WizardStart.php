@@ -39,6 +39,12 @@ class WizardStart extends Component
         $this->showCustomForm = true;
     }
 
+    public function goBack()
+    {
+        $this->selectedTemplate = null;
+        $this->showCustomForm = false;
+    }
+
     public function startWizard()
     {
         // Validate input

@@ -98,7 +98,7 @@
                 <!-- Submit Button -->
                 <div class="flex justify-between items-center pt-6 border-t">
                     <button type="button"
-                            wire:click="selectTemplate(null); showCustomForm = false"
+                            wire:click="goBack"
                             class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                         العودة
                     </button>
