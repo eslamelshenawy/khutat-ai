@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>{{ $plan->title }}</title>
     <style>
         @page {
             margin: 2cm;
         }
         body {
-            font-family: 'dejavu sans', sans-serif;
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
             direction: rtl;
             text-align: right;
             color: #333;
-            line-height: 1.8;
-            font-size: 14px;
+            line-height: 2;
+            font-size: 16px;
         }
         * {
-            font-family: 'dejavu sans', sans-serif;
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
         }
         .header {
             text-align: center;
