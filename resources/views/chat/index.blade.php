@@ -1,8 +1,5 @@
-@extends('components.layouts.app')
-
-@section('title', 'المحادثة مع الذكاء الاصطناعي')
-
-@section('content')
+<x-layouts.app>
+    <x-slot name="title">المحادثة مع الذكاء الاصطناعي</x-slot>
 <div class="container mx-auto px-4 py-8 h-screen flex flex-col">
     <!-- Page Header -->
     <div class="mb-6">
@@ -249,4 +246,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endsection
+</x-layouts.app>

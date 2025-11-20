@@ -1,8 +1,5 @@
-@extends('components.layouts.app')
-
-@section('title', 'الإشعارات')
-
-@section('content')
+<x-layouts.app>
+    <x-slot name="title">الإشعارات</x-slot>
 <div class="container mx-auto px-4 py-8">
     <!-- Page Header -->
     <div class="mb-8 flex items-center justify-between">
@@ -143,4 +140,4 @@
     </div>
     @endif
 </div>
-@endsection
+</x-layouts.app>
