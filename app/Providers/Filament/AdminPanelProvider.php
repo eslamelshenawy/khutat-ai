@@ -63,8 +63,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-bell')
                     ->group('الميزات الإضافية')
                     ->sort(3)
-                    ->badge(fn () => auth()->user()->notifications()->unread()->count())
-                    ->badgeColor('danger'),
+                    ->badge(fn () => auth()->user()->notifications()->unread()->count()),
                 NavigationItem::make('خططي')
                     ->url('/plans')
                     ->icon('heroicon-o-document-text')
