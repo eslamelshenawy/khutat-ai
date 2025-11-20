@@ -10,6 +10,7 @@ use PhpOffice\PhpWord\Style\Font;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BusinessPlanExport;
 use Illuminate\Support\Facades\Storage;
+use App\Services\PdfExportService;
 
 class ExportService
 {
@@ -18,32 +19,9 @@ class ExportService
      */
     public function exportToPDF(BusinessPlan $plan): string
     {
-        // Load the business plan with all relationships
-        $plan->load(['chapters', 'template', 'user']);
-
-        // Generate PDF with Arabic support
-        $pdf = Pdf::loadView('exports.business-plan-pdf', [
-            'plan' => $plan,
-        ]);
-
-        // Set options for better Arabic rendering
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setOption('isHtml5ParserEnabled', true);
-        $pdf->setOption('isRemoteEnabled', true);
-        $pdf->setOption('isFontSubsettingEnabled', false);
-        $pdf->setOption('defaultFont', 'DejaVu Sans');
-        $pdf->setOption('dpi', 96);
-        $pdf->setOption('defaultPaperOrientation', 'portrait');
-        $pdf->setOption('chroot', realpath(base_path()));
-
-        // Generate filename
-        $filename = $this->generateFilename($plan, 'pdf');
-
-        // Save to storage
-        $path = 'exports/' . $filename;
-        Storage::put($path, $pdf->output());
-
-        return $path;
+        // Use mPDF service for better Arabic support
+        $pdfService = new PdfExportService();
+        return $pdfService->exportToPDF($plan);
     }
 
     /**
