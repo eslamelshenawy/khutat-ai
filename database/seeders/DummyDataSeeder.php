@@ -102,8 +102,9 @@ class DummyDataSeeder extends Seeder
         $this->command->info('Created ' . count($templates) . ' templates');
 
         // Business plan statuses and types
-        $statuses = ['draft', 'in_progress', 'completed', 'archived'];
-        $businessTypes = ['Technology', 'Retail', 'Restaurant', 'Consulting', 'Manufacturing', 'Services'];
+        $statuses = ['draft', 'in_progress', 'review', 'completed', 'archived'];
+        $projectTypes = ['new_business', 'existing_expansion', 'franchise', 'startup'];
+        $industryTypes = ['Technology', 'Retail', 'Restaurant', 'Consulting', 'Manufacturing', 'Services'];
 
         // Create 25 dummy business plans
         $businessPlanNames = [
@@ -141,16 +142,19 @@ class DummyDataSeeder extends Seeder
             BusinessPlan::create([
                 'user_id' => $user->id,
                 'template_id' => $template?->id,
-                'business_name' => $planName,
-                'business_type' => $businessTypes[array_rand($businessTypes)],
+                'title' => $planName,
+                'slug' => \Illuminate\Support\Str::slug($planName) . '-' . $user->id,
+                'description' => 'A comprehensive business plan for ' . $planName,
+                'project_type' => $projectTypes[array_rand($projectTypes)],
+                'industry_type' => $industryTypes[array_rand($industryTypes)],
                 'status' => $statuses[array_rand($statuses)],
-                'target_market' => $this->getRandomTargetMarket(),
-                'funding_goal' => rand(50000, 5000000),
-                'data' => json_encode([
-                    'vision' => $this->getRandomVision(),
-                    'mission' => $this->getRandomMission(),
-                    'created_at' => now()->subDays(rand(1, 90))->toDateTimeString(),
-                ]),
+                'completion_percentage' => rand(0, 100),
+                'company_name' => $planName,
+                'vision' => $this->getRandomVision(),
+                'mission' => $this->getRandomMission(),
+                'language' => 'en',
+                'is_public' => rand(0, 1) === 1,
+                'allow_comments' => rand(0, 1) === 1,
             ]);
         }
 
