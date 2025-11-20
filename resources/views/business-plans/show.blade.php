@@ -52,25 +52,47 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
                                 </svg>
                             </button>
-                            <div x-show="open" @click.away="open = false" x-cloak class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                            <div x-show="open" @click.away="open = false" x-cloak class="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                                 <div class="py-1">
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 border-b">تصدير</div>
                                     <a href="{{ route('business-plans.export', [$businessPlan, 'pdf']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        تصدير PDF
+                                        📄 تصدير PDF
                                     </a>
                                     <a href="{{ route('business-plans.export', [$businessPlan, 'docx']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        تصدير DOCX
+                                        📝 تصدير Word
                                     </a>
+                                    <a href="{{ route('business-plans.export', [$businessPlan, 'xlsx']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        📊 تصدير Excel
+                                    </a>
+
+                                    <div class="border-t my-1"></div>
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500">ذكاء اصطناعي</div>
+                                    <form action="{{ route('business-plans.analyze', $businessPlan) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="block w-full text-right px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            🤖 تحليل الخطة بـ AI
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('business-plans.recommendations', $businessPlan) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="block w-full text-right px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            💡 توليد التوصيات
+                                        </button>
+                                    </form>
+
+                                    <div class="border-t my-1"></div>
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500">إجراءات</div>
                                     <form action="{{ route('business-plans.duplicate', $businessPlan) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="block w-full text-right px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            نسخ الخطة
+                                            📋 نسخ الخطة
                                         </button>
                                     </form>
                                     <form action="{{ route('business-plans.destroy', $businessPlan) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه الخطة؟')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="block w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                            حذف الخطة
+                                            🗑️ حذف الخطة
                                         </button>
                                     </form>
                                 </div>
@@ -208,6 +230,78 @@
                 <p class="text-gray-500 text-center py-8">لا توجد فصول حتى الآن</p>
                 @endif
             </div>
+
+            <!-- AI Analysis & Recommendations -->
+            @if($businessPlan->ai_score || $businessPlan->aiRecommendations->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                @if($businessPlan->ai_score)
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-6 h-6 ml-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        تحليل الذكاء الاصطناعي
+                    </h3>
+                    <div class="flex items-center mb-4">
+                        <div class="relative w-24 h-24">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle class="text-gray-200 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                <circle class="text-purple-600 stroke-current" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent"
+                                    stroke-dasharray="{{ 251.2 * $businessPlan->ai_score / 100 }} 251.2"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-gray-900">{{ $businessPlan->ai_score }}</span>
+                            </div>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-500">درجة التقييم</p>
+                            <p class="text-lg font-semibold
+                                @if($businessPlan->ai_score >= 80) text-green-600
+                                @elseif($businessPlan->ai_score >= 60) text-yellow-600
+                                @else text-red-600
+                                @endif">
+                                @if($businessPlan->ai_score >= 80) ممتازة
+                                @elseif($businessPlan->ai_score >= 60) جيدة
+                                @else تحتاج تحسين
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    @if($businessPlan->ai_feedback)
+                    <div class="text-sm text-gray-700 prose prose-sm max-w-none">
+                        {!! nl2br(e(Str::limit($businessPlan->ai_feedback, 300))) !!}
+                    </div>
+                    @endif
+                </div>
+                @endif
+
+                @if($businessPlan->aiRecommendations->count() > 0)
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-6 h-6 ml-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        التوصيات
+                    </h3>
+                    <div class="space-y-3">
+                        @foreach($businessPlan->aiRecommendations->take(3) as $recommendation)
+                        <div class="border-r-4 pr-3
+                            @if($recommendation->priority === 'high') border-red-500
+                            @elseif($recommendation->priority === 'medium') border-yellow-500
+                            @else border-blue-500
+                            @endif">
+                            <p class="font-semibold text-gray-900 text-sm">{{ $recommendation->title }}</p>
+                            <p class="text-xs text-gray-600 mt-1">{{ Str::limit($recommendation->description, 100) }}</p>
+                        </div>
+                        @endforeach
+                    </div>
+                    @if($businessPlan->aiRecommendations->count() > 3)
+                    <p class="text-sm text-blue-600 mt-4">+ {{ $businessPlan->aiRecommendations->count() - 3 }} توصية أخرى</p>
+                    @endif
+                </div>
+                @endif
+            </div>
+            @endif
 
             <!-- Vision & Mission -->
             @if($businessPlan->vision || $businessPlan->mission)
