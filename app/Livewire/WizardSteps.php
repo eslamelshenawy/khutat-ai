@@ -31,8 +31,16 @@ class WizardSteps extends Component
 
         // Set first chapter as current if exists
         if ($this->chapters->count() > 0 && !$this->currentChapterId) {
-            $this->currentChapterId = $this->chapters->first()->id;
-            $this->currentChapter = $this->chapters->first();
+            $chapter = $this->chapters->first();
+            $this->currentChapterId = $chapter->id;
+            $this->currentChapter = [
+                'id' => $chapter->id,
+                'title' => $chapter->title,
+                'content' => $chapter->content,
+                'status' => $chapter->status,
+                'is_ai_generated' => $chapter->is_ai_generated,
+                'description' => null,
+            ];
         }
     }
 
@@ -76,7 +84,17 @@ class WizardSteps extends Component
 
             // Reload chapters
             $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
-            $this->currentChapter = $chapter->fresh();
+
+            // Update current chapter as array
+            $chapter = $chapter->fresh();
+            $this->currentChapter = [
+                'id' => $chapter->id,
+                'title' => $chapter->title,
+                'content' => $chapter->content,
+                'status' => $chapter->status,
+                'is_ai_generated' => $chapter->is_ai_generated,
+                'description' => null,
+            ];
 
             // Update plan completion percentage
             $this->updateCompletionPercentage();
@@ -108,11 +126,8 @@ class WizardSteps extends Component
                     'is_ai_generated' => true,
                 ]);
 
-                // Reload chapter and update current chapter
+                // Reload chapter and update current chapter as array
                 $chapter = $chapter->fresh();
-                $this->currentChapter = $chapter;
-
-                // Force update the content field for Livewire
                 $this->currentChapter = [
                     'id' => $chapter->id,
                     'title' => $chapter->title,
