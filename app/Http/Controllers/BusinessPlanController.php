@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Services\ExportService;
 use App\Services\RecommendationService;
 use App\Services\OllamaService;
+use App\Jobs\AnalyzeBusinessPlanJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -160,32 +161,29 @@ class BusinessPlanController extends Controller
 
     /**
      * Analyze business plan and generate AI score and feedback
+     * Runs in background to avoid timeout issues
      */
-    public function analyze(BusinessPlan $businessPlan, OllamaService $ollamaService)
+    public function analyze(BusinessPlan $businessPlan)
     {
         Gate::authorize('update', $businessPlan);
 
         try {
-            $businessPlan->load(['chapters', 'template']);
+            // Dispatch job to background for processing
+            AnalyzeBusinessPlanJob::dispatch($businessPlan);
 
-            // Use OllamaService's analyzePlanQuality method
-            $analysis = $ollamaService->analyzePlanQuality($businessPlan);
-
-            // Update business plan with AI analysis
-            $businessPlan->update([
-                'ai_score' => $analysis['score'] ?? null,
-                'ai_feedback' => $analysis['feedback'] ?? 'تم تحليل الخطة بنجاح',
+            Log::info('Analysis job dispatched', [
+                'plan_id' => $businessPlan->id,
             ]);
 
-            return redirect()->back()->with('success', 'تم تحليل خطة العمل بنجاح');
+            return redirect()->back()->with('success', 'جاري تحليل خطة العمل... سيتم إظهار النتائج بعد قليل. قم بتحديث الصفحة بعد دقيقة.');
 
         } catch (\Exception $e) {
-            Log::error('Business Plan Analysis Error', [
+            Log::error('Failed to dispatch analysis job', [
                 'plan_id' => $businessPlan->id,
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->back()->with('error', 'حدث خطأ أثناء تحليل خطة العمل: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ أثناء بدء عملية التحليل: ' . $e->getMessage());
         }
     }
 
