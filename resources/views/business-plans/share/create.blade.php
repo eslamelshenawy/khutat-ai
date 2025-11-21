@@ -156,6 +156,41 @@
                                         عرض التحليلات
                                     </a>
                                 </div>
+
+                                <!-- Email Sharing Form -->
+                                <div x-data="{ showEmailForm: false }" class="mt-4 border-t pt-4">
+                                    <button @click="showEmailForm = !showEmailForm" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                        إرسال عبر البريد الإلكتروني
+                                    </button>
+
+                                    <div x-show="showEmailForm" x-cloak class="mt-3">
+                                        <form action="{{ route('business-plans.share.email', [$businessPlan, $share]) }}" method="POST">
+                                            @csrf
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <label class="block text-xs font-medium text-gray-700 mb-1">البريد الإلكتروني (يمكنك إدخال أكثر من بريد مفصولة بفواصل)</label>
+                                                    <input type="text" name="emails_text" placeholder="example@email.com, another@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
+                                                    <p class="text-xs text-gray-500 mt-1">افصل بين عناوين البريد بفواصل</p>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-medium text-gray-700 mb-1">رسالة (اختياري)</label>
+                                                    <textarea name="message" rows="2" placeholder="أضف رسالة شخصية..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></textarea>
+                                                </div>
+                                                <div class="flex items-center space-x-reverse space-x-2">
+                                                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                                        إرسال
+                                                    </button>
+                                                    <button type="button" @click="showEmailForm = false" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 text-sm">
+                                                        إلغاء
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     </div>

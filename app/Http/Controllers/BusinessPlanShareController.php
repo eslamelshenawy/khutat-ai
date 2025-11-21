@@ -137,12 +137,22 @@ class BusinessPlanShareController extends Controller
         Gate::authorize('update', $share->businessPlan);
 
         $validated = $request->validate([
-            'emails' => 'required|array|min:1',
-            'emails.*' => 'required|email',
+            'emails_text' => 'required|string',
             'message' => 'nullable|string|max:500',
         ]);
 
-        foreach ($validated['emails'] as $email) {
+        // Convert comma-separated emails to array and validate each
+        $emailsArray = array_map('trim', explode(',', $validated['emails_text']));
+        $emailsArray = array_filter($emailsArray);
+
+        // Validate each email
+        foreach ($emailsArray as $email) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return redirect()->back()->withErrors(['emails_text' => "البريد الإلكتروني غير صالح: {$email}"]);
+            }
+        }
+
+        foreach ($emailsArray as $email) {
             try {
                 Mail::send('emails.shared-plan', [
                     'plan' => $share->businessPlan,
