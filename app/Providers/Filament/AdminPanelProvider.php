@@ -32,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('web')
             ->brandName('لوحة الإدارة - معالج خطط الأعمال')
             ->favicon(asset('favicon.ico'))
-            ->locale('ar')
             ->colors([
                 'primary' => Color::Blue,
             ])
