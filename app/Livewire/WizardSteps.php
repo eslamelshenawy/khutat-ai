@@ -46,6 +46,18 @@ class WizardSteps extends Component
 
     public function selectChapter($chapterId)
     {
+        // Save current chapter before switching if it has content
+        if ($this->currentChapterId && isset($this->currentChapter['content'])) {
+            $currentChap = $this->plan->chapters()->find($this->currentChapterId);
+            if ($currentChap) {
+                $currentChap->update([
+                    'content' => $this->currentChapter['content'] ?? '',
+                    'status' => empty($this->currentChapter['content']) ? 'empty' : 'draft',
+                ]);
+            }
+        }
+
+        // Load new chapter
         $chapter = $this->plan->chapters()->find($chapterId);
 
         if ($chapter) {
