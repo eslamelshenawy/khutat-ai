@@ -51,23 +51,23 @@ class BusinessPlanTranslationController extends Controller
             $languageNames = $this->getLanguageNames();
             $languageName = $languageNames[$targetLanguage] ?? $targetLanguage;
 
-            // Translate basic info (only short texts)
+            // Translate basic info
             $translatedData = [
                 'title' => $this->translateTextSimple($businessPlan->title, $targetLanguage),
-                'description' => $businessPlan->description, // Keep original for now
-                'company_name' => $businessPlan->company_name, // Keep original
+                'description' => $this->translateTextSimple($businessPlan->description, $targetLanguage),
+                'company_name' => $businessPlan->company_name, // Keep company name as-is
                 'vision' => $this->translateTextSimple($businessPlan->vision, $targetLanguage),
                 'mission' => $this->translateTextSimple($businessPlan->mission, $targetLanguage),
-                'target_market' => $businessPlan->target_market, // Keep original
+                'target_market' => $this->translateTextSimple($businessPlan->target_market, $targetLanguage),
             ];
 
-            // Translate only chapter titles (not content to save time)
+            // Translate chapter titles AND content
             $translatedChapters = [];
             if ($includeChapters && $businessPlan->chapters->count() > 0) {
                 foreach ($businessPlan->chapters as $chapter) {
                     $translatedChapters[] = [
                         'title' => $this->translateTextSimple($chapter->title, $targetLanguage),
-                        'content' => $chapter->content, // Keep original content
+                        'content' => $this->translateTextSimple($chapter->content, $targetLanguage),
                         'sort_order' => $chapter->sort_order,
                     ];
                 }
