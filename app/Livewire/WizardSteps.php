@@ -140,6 +140,10 @@ class WizardSteps extends Component
 
                 // Reload chapter and update current chapter as array
                 $chapter = $chapter->fresh();
+
+                // Reset to force Livewire to detect the change
+                $this->reset('currentChapter');
+
                 $this->currentChapter = [
                     'id' => $chapter->id,
                     'title' => $chapter->title,
