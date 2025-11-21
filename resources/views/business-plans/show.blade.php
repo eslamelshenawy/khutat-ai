@@ -581,22 +581,122 @@
     </div>
 
     <script>
-        // Auto-submit logo form on file select
+        // Show notification helper
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-lg shadow-lg max-w-md ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Show loading overlay
+        function showLoading(message = 'جاري التحميل...') {
+            const overlay = document.createElement('div');
+            overlay.id = 'uploadOverlay';
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+                    <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-gray-700 font-medium">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('uploadOverlay');
+            if (overlay) overlay.remove();
+        }
+
+        // Logo upload with AJAX
         document.addEventListener('DOMContentLoaded', function() {
             const logoInput = document.getElementById('logoInput');
-            if (logoInput) {
+            const logoForm = document.getElementById('logoForm');
+
+            if (logoInput && logoForm) {
                 logoInput.addEventListener('change', function() {
                     if (this.files && this.files[0]) {
-                        document.getElementById('logoForm').submit();
+                        const formData = new FormData(logoForm);
+
+                        showLoading('جاري رفع الشعار...');
+
+                        fetch(logoForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoading();
+                            if (data.success) {
+                                showNotification('تم رفع الشعار بنجاح!', 'success');
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                showNotification(data.message || 'فشل رفع الشعار', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            hideLoading();
+                            showNotification('حدث خطأ أثناء رفع الشعار', 'error');
+                            console.error('Upload error:', error);
+                        });
                     }
                 });
             }
 
+            // Image upload with AJAX
             const imageInput = document.getElementById('imageInput');
-            if (imageInput) {
+            const imageForm = document.getElementById('imageForm');
+
+            if (imageInput && imageForm) {
                 imageInput.addEventListener('change', function() {
                     if (this.files && this.files[0]) {
-                        document.getElementById('imageForm').submit();
+                        const formData = new FormData(imageForm);
+
+                        showLoading('جاري رفع الصورة...');
+
+                        fetch(imageForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoading();
+                            if (data.success) {
+                                showNotification('تم رفع الصورة بنجاح!', 'success');
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                showNotification(data.message || 'فشل رفع الصورة', 'error');
+                            }
+                            // Clear input
+                            imageInput.value = '';
+                        })
+                        .catch(error => {
+                            hideLoading();
+                            showNotification('حدث خطأ أثناء رفع الصورة', 'error');
+                            console.error('Upload error:', error);
+                            imageInput.value = '';
+                        });
                     }
                 });
             }
