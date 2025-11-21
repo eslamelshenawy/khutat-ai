@@ -316,7 +316,7 @@ class InfographicService
     }
 
     /**
-     * Fix Arabic text for GD (reverse for RTL)
+     * Fix Arabic text for GD (reshape and reverse for RTL)
      */
     protected function fixArabicText($text): string
     {
@@ -329,15 +329,27 @@ class InfographicService
             return $text; // Not Arabic, return as-is
         }
 
-        // For RTL languages like Arabic, we need to reverse the string
-        // But preserve Latin characters and numbers in their order
-        $text = $this->reverseArabicText($text);
+        // Use ArPHP library for proper Arabic text shaping
+        if (class_exists('\ArPHP\I18N\Arabic')) {
+            try {
+                $arabic = new \ArPHP\I18N\Arabic();
 
-        return $text;
+                // Glyphs method: converts Arabic characters to their correct form
+                $text = $arabic->utf8Glyphs($text);
+
+                return $text;
+            } catch (\Exception $e) {
+                // Fallback to simple reverse if library fails
+                return $this->reverseArabicText($text);
+            }
+        }
+
+        // Fallback: simple reverse
+        return $this->reverseArabicText($text);
     }
 
     /**
-     * Reverse Arabic text while preserving Latin/numbers
+     * Simple reverse for Arabic text (fallback)
      */
     protected function reverseArabicText($text): string
     {
