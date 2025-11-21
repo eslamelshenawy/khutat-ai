@@ -173,6 +173,47 @@
         </div>
     </div>
 
+    <!-- New Features Section -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center mb-4">
+            <svg class="w-8 h-8 text-white ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <h3 class="text-2xl font-bold text-white">ميزات جديدة متاحة الآن!</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Version History -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition">
+                <div class="flex items-center mb-2">
+                    <span class="text-3xl ml-2">📜</span>
+                    <h4 class="text-white font-bold text-lg">سجل الإصدارات</h4>
+                </div>
+                <p class="text-white text-opacity-90 text-sm mb-3">احفظ نسخ متعددة من خطتك واستعدها في أي وقت</p>
+                <span class="inline-block bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full">متاح في كل خطة</span>
+            </div>
+
+            <!-- Translation -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition">
+                <div class="flex items-center mb-2">
+                    <span class="text-3xl ml-2">🌍</span>
+                    <h4 class="text-white font-bold text-lg">ترجمة تلقائية</h4>
+                </div>
+                <p class="text-white text-opacity-90 text-sm mb-3">ترجم خطتك إلى 10 لغات عالمية بالذكاء الاصطناعي</p>
+                <span class="inline-block bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full">10 لغات</span>
+            </div>
+
+            <!-- Drag & Drop -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition">
+                <div class="flex items-center mb-2">
+                    <span class="text-3xl ml-2">🎯</span>
+                    <h4 class="text-white font-bold text-lg">إعادة ترتيب سهلة</h4>
+                </div>
+                <p class="text-white text-opacity-90 text-sm mb-3">رتب فصول خطتك بالسحب والإفلات ببساطة</p>
+                <span class="inline-block bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full">في محرر الفصول</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <a href="{{ route('wizard.start') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow p-6 hover:shadow-lg transition transform hover:-translate-y-1">
@@ -199,7 +240,7 @@
             </div>
         </a>
 
-        <a href="#" class="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg shadow p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+        <a href="{{ route('dashboard.analytics') }}" class="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg shadow p-6 hover:shadow-lg transition transform hover:-translate-y-1">
             <div class="flex items-center">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
