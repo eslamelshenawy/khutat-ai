@@ -30,8 +30,11 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->authGuard('web')
+            ->brandName('لوحة الإدارة - معالج خطط الأعمال')
+            ->favicon(asset('favicon.ico'))
+            ->locale('ar')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -44,31 +47,52 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
             ])
             ->navigationGroups([
-                NavigationGroup::make('إدارة المحتوى'),
-                NavigationGroup::make('الميزات الإضافية'),
+                NavigationGroup::make('إدارة النظام')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->collapsed(false),
+                NavigationGroup::make('المستخدمين والصلاحيات')
+                    ->icon('heroicon-o-user-group')
+                    ->collapsed(false),
+                NavigationGroup::make('الروابط السريعة')
+                    ->icon('heroicon-o-link')
+                    ->collapsed(false),
             ])
             ->navigationItems([
-                NavigationItem::make('لوحة التحكم')
+                // روابط سريعة لواجهة المستخدم
+                NavigationItem::make('لوحة التحكم الرئيسية')
                     ->url('/dashboard')
-                    ->icon('heroicon-o-home')
-                    ->group('الميزات الإضافية')
+                    ->icon('heroicon-o-squares-2x2')
+                    ->group('الروابط السريعة')
                     ->sort(1),
+                NavigationItem::make('خططي')
+                    ->url('/plans')
+                    ->icon('heroicon-o-briefcase')
+                    ->group('الروابط السريعة')
+                    ->sort(2),
+                NavigationItem::make('مهامي')
+                    ->url('/my-tasks')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->group('الروابط السريعة')
+                    ->sort(3)
+                    ->badge(fn () => auth()->check() ? auth()->user()->assignedTasks()->whereIn('status', ['pending', 'in_progress'])->count() : 0)
+                    ->badgeColor('warning'),
                 NavigationItem::make('محادثة AI')
                     ->url('/chat')
                     ->icon('heroicon-o-chat-bubble-left-right')
-                    ->group('الميزات الإضافية')
-                    ->sort(2),
+                    ->group('الروابط السريعة')
+                    ->sort(4),
                 NavigationItem::make('الإشعارات')
                     ->url('/notifications')
-                    ->icon('heroicon-o-bell')
-                    ->group('الميزات الإضافية')
-                    ->sort(3)
-                    ->badge(fn () => auth()->user()->notifications()->unread()->count()),
-                NavigationItem::make('خططي')
-                    ->url('/plans')
-                    ->icon('heroicon-o-document-text')
-                    ->group('الميزات الإضافية')
-                    ->sort(4),
+                    ->icon('heroicon-o-bell-alert')
+                    ->group('الروابط السريعة')
+                    ->sort(5)
+                    ->badge(fn () => auth()->check() ? auth()->user()->unreadNotifications()->count() : 0)
+                    ->badgeColor('danger'),
+                NavigationItem::make('قوالب التصدير')
+                    ->url('/export-templates')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->group('الروابط السريعة')
+                    ->sort(6),
             ])
             ->middleware([
                 EncryptCookies::class,

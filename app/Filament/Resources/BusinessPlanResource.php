@@ -25,6 +25,8 @@ class BusinessPlanResource extends Resource
 
     protected static ?string $pluralModelLabel = 'خطط الأعمال';
 
+    protected static ?string $navigationGroup = 'إدارة النظام';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

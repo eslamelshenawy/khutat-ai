@@ -108,6 +108,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get unread notifications for the user.
+     */
+    public function unreadNotifications(): HasMany
+    {
+        return $this->hasMany(Notification::class)->where('is_read', false);
+    }
+
+    /**
      * Get the comments created by this user
      */
     public function comments(): HasMany
