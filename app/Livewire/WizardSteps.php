@@ -42,7 +42,13 @@ class WizardSteps extends Component
 
         if ($chapter) {
             $this->currentChapterId = $chapterId;
-            $this->currentChapter = $chapter;
+            $this->currentChapter = [
+                'id' => $chapter->id,
+                'title' => $chapter->title,
+                'content' => $chapter->content,
+                'status' => $chapter->status,
+                'is_ai_generated' => $chapter->is_ai_generated,
+            ];
         }
     }
 
@@ -101,7 +107,19 @@ class WizardSteps extends Component
                     'is_ai_generated' => true,
                 ]);
 
-                $this->currentChapter = $chapter->fresh();
+                // Reload chapter and update current chapter
+                $chapter = $chapter->fresh();
+                $this->currentChapter = $chapter;
+
+                // Force update the content field for Livewire
+                $this->currentChapter = [
+                    'id' => $chapter->id,
+                    'title' => $chapter->title,
+                    'content' => $chapter->content,
+                    'status' => $chapter->status,
+                    'is_ai_generated' => $chapter->is_ai_generated,
+                ];
+
                 $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
 
                 $this->dispatch('notify', [
