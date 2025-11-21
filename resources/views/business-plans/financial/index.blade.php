@@ -94,8 +94,35 @@
         </form>
     </div>
 
-    <!-- Financial Data Tables -->
+    <!-- Charts Section -->
     @if($financialData->count() > 0)
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Revenue Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">تطور الإيرادات</h3>
+            <canvas id="revenueChart" height="250"></canvas>
+        </div>
+
+        <!-- Profit Margin Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">هامش الربح (%)</h3>
+            <canvas id="profitMarginChart" height="250"></canvas>
+        </div>
+
+        <!-- Net Income Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">صافي الربح</h3>
+            <canvas id="netIncomeChart" height="250"></canvas>
+        </div>
+
+        <!-- Cash Flow Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">التدفق النقدي الصافي</h3>
+            <canvas id="cashFlowChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- Financial Data Tables -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">البيانات المالية المحفوظة</h2>
 
@@ -161,5 +188,139 @@
     </div>
     @endif
 </div>
+
+@if($financialData->count() > 0)
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Prepare data from Laravel
+    const financialData = @json($financialData->values());
+    const years = financialData.map(d => d.year);
+    const revenues = financialData.map(d => parseFloat(d.revenue));
+    const netIncomes = financialData.map(d => parseFloat(d.net_income));
+    const profitMargins = financialData.map(d => d.profit_margin);
+    const cashFlows = financialData.map(d => parseFloat(d.net_cash_flow));
+
+    // Common chart options
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                rtl: true,
+                labels: {
+                    font: {
+                        family: 'Tajawal, Arial, sans-serif'
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        family: 'Tajawal, Arial, sans-serif'
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        family: 'Tajawal, Arial, sans-serif'
+                    }
+                }
+            }
+        }
+    };
+
+    // Revenue Chart
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'الإيرادات',
+                data: revenues,
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                ...commonOptions.scales,
+                y: {
+                    ...commonOptions.scales.y,
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Profit Margin Chart
+    new Chart(document.getElementById('profitMarginChart'), {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'هامش الربح (%)',
+                data: profitMargins,
+                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                borderColor: 'rgb(34, 197, 94)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                ...commonOptions.scales,
+                y: {
+                    ...commonOptions.scales.y,
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Net Income Chart
+    new Chart(document.getElementById('netIncomeChart'), {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'صافي الربح',
+                data: netIncomes,
+                backgroundColor: netIncomes.map(val => val >= 0 ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)'),
+                borderColor: netIncomes.map(val => val >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'),
+                borderWidth: 1
+            }]
+        },
+        options: commonOptions
+    });
+
+    // Cash Flow Chart
+    new Chart(document.getElementById('cashFlowChart'), {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'التدفق النقدي الصافي',
+                data: cashFlows,
+                borderColor: 'rgb(168, 85, 247)',
+                backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: commonOptions
+    });
+</script>
+@endif
 
 </x-layouts.app>
