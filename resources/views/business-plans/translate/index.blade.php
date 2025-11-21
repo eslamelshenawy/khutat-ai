@@ -45,13 +45,15 @@
                                 'ja' => ['name' => 'اليابانية', 'flag' => '🇯🇵'],
                                 'ko' => ['name' => 'الكورية', 'flag' => '🇰🇷'],
                             ] as $code => $lang)
-                                <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all">
-                                    <input type="radio" name="target_language" value="{{ $code }}" class="sr-only peer" required>
+                                <label class="language-option relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all">
+                                    <input type="radio" name="target_language" value="{{ $code }}" class="hidden language-radio" required>
                                     <div class="flex items-center gap-3 w-full">
                                         <span class="text-3xl">{{ $lang['flag'] }}</span>
-                                        <span class="text-sm font-medium text-gray-700 peer-checked:text-indigo-600">{{ $lang['name'] }}</span>
+                                        <span class="text-sm font-medium text-gray-700 language-name">{{ $lang['name'] }}</span>
                                     </div>
-                                    <div class="absolute inset-0 border-2 border-transparent peer-checked:border-indigo-600 peer-checked:bg-indigo-50 rounded-lg pointer-events-none"></div>
+                                    <svg class="w-6 h-6 text-indigo-600 absolute left-2 top-1/2 -translate-y-1/2 checkmark hidden" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
                                 </label>
                             @endforeach
                         </div>
@@ -137,9 +139,44 @@
         </div>
     </div>
 
+    <style>
+        .language-option input:checked ~ .checkmark {
+            display: block !important;
+        }
+        .language-option:has(input:checked) {
+            border-color: #4f46e5 !important;
+            background-color: #eef2ff !important;
+        }
+        .language-option:has(input:checked) .language-name {
+            color: #4f46e5 !important;
+            font-weight: 600;
+        }
+    </style>
+
     <script>
+        // Handle form submission
         document.getElementById('translationForm').addEventListener('submit', function() {
             document.getElementById('loadingOverlay').classList.remove('hidden');
+        });
+
+        // Handle language selection visual feedback
+        document.querySelectorAll('.language-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Remove selection from all options
+                document.querySelectorAll('.language-option').forEach(label => {
+                    label.classList.remove('border-indigo-600', 'bg-indigo-50');
+                    label.querySelector('.language-name').classList.remove('text-indigo-600', 'font-semibold');
+                    label.querySelector('.checkmark').classList.add('hidden');
+                });
+
+                // Add selection to chosen option
+                if (this.checked) {
+                    const label = this.closest('.language-option');
+                    label.classList.add('border-indigo-600', 'bg-indigo-50');
+                    label.querySelector('.language-name').classList.add('text-indigo-600', 'font-semibold');
+                    label.querySelector('.checkmark').classList.remove('hidden');
+                }
+            });
         });
     </script>
 
