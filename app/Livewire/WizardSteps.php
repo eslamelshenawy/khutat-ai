@@ -48,6 +48,7 @@ class WizardSteps extends Component
                 'content' => $chapter->content,
                 'status' => $chapter->status,
                 'is_ai_generated' => $chapter->is_ai_generated,
+                'description' => null, // Chapter model doesn't have description field
             ];
         }
     }
@@ -118,6 +119,7 @@ class WizardSteps extends Component
                     'content' => $chapter->content,
                     'status' => $chapter->status,
                     'is_ai_generated' => $chapter->is_ai_generated,
+                    'description' => null, // Chapter model doesn't have description field
                 ];
 
                 $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
