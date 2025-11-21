@@ -95,4 +95,31 @@ class BusinessPlanExportController extends Controller
             abort(500, 'خطأ في تصدير Excel: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export business plan to PowerPoint
+     */
+    public function exportPowerPoint(BusinessPlan $businessPlan)
+    {
+        // Check authorization
+        $this->authorize('view', $businessPlan);
+
+        try {
+            $path = $this->exportService->exportToPowerPoint($businessPlan);
+            $fullPath = storage_path('app/' . $path);
+
+            if (!file_exists($fullPath)) {
+                abort(404, 'PowerPoint file not found');
+            }
+
+            return response()->download($fullPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            \Log::error('PowerPoint Export Error', [
+                'plan_id' => $businessPlan->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            abort(500, 'خطأ في تصدير PowerPoint: ' . $e->getMessage());
+        }
+    }
 }
