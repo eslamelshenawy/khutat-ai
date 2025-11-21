@@ -137,20 +137,23 @@ class BusinessPlanExportController extends Controller
         try {
             $infographicService = new InfographicService();
             $path = $infographicService->generateInfographic($businessPlan);
-            $fullPath = storage_path('app/public/' . $path);
 
-            if (!file_exists($fullPath)) {
-                abort(404, 'Infographic file not found');
-            }
+            // Get public URL for the image
+            $imageUrl = asset('storage/' . $path);
 
-            return response()->file($fullPath);
+            // Return view with image
+            return view('business-plans.infographic', [
+                'businessPlan' => $businessPlan,
+                'imageUrl' => $imageUrl,
+                'imagePath' => $path,
+            ]);
         } catch (\Exception $e) {
             \Log::error('Infographic Generation Error', [
                 'plan_id' => $businessPlan->id,
                 'error' => $e->getMessage(),
             ]);
 
-            abort(500, 'خطأ في توليد الإنفوجرافيك: ' . $e->getMessage());
+            return back()->with('error', 'خطأ في توليد الإنفوجرافيك: ' . $e->getMessage());
         }
     }
 }
