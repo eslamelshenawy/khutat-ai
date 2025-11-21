@@ -6,9 +6,11 @@ use App\Models\BusinessPlan;
 use App\Services\ExportService;
 use App\Services\InfographicService;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BusinessPlanExportController extends Controller
 {
+    use AuthorizesRequests;
     protected ExportService $exportService;
 
     public function __construct(ExportService $exportService)
