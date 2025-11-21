@@ -116,9 +116,21 @@ class BusinessPlanController extends Controller
                 return redirect()->back()->with('error', 'صيغة التصدير غير مدعومة');
             }
 
-            return Storage::download($path);
+            $fullPath = storage_path('app/' . $path);
+
+            if (!file_exists($fullPath)) {
+                return redirect()->back()->with('error', 'الملف غير موجود');
+            }
+
+            return response()->download($fullPath)->deleteFileAfterSend(true);
 
         } catch (\Exception $e) {
+            Log::error('Export Error', [
+                'plan_id' => $businessPlan->id,
+                'format' => $format,
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء التصدير: ' . $e->getMessage());
         }
     }
