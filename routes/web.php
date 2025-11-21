@@ -103,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/plans/{businessPlan}/qr-code/download', [BusinessPlanController::class, 'generateQrCode'])->name('business-plans.qr-code.download');
 
     // Comments Routes
-    Route::prefix('plans/{businessPlan}/comments')->group(function () {
+    Route::prefix('plans/{businessPlan}/comments')->scopeBindings()->group(function () {
         Route::post('/', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
         Route::put('/{comment}', [App\Http\Controllers\CommentController::class, 'update'])->name('comments.update');
         Route::delete('/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
