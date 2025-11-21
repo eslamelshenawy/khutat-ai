@@ -260,18 +260,25 @@ class BusinessPlanTranslationController extends Controller
      */
     protected function exportAsPdf($content, $title)
     {
-        // Convert markdown to HTML with proper encoding
+        // Convert markdown to HTML with proper encoding and direction
         $html = '
         <!DOCTYPE html>
-        <html dir="ltr">
+        <html>
         <head>
             <meta charset="UTF-8">
             <style>
-                body { font-family: DejaVu Sans, sans-serif; line-height: 1.6; padding: 20px; }
-                h1 { font-size: 24px; margin-bottom: 10px; }
-                h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
-                h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
-                p { margin: 10px 0; }
+                * { direction: ltr; unicode-bidi: embed; }
+                body {
+                    font-family: DejaVu Sans, sans-serif;
+                    line-height: 1.6;
+                    padding: 20px;
+                    direction: ltr;
+                    text-align: left;
+                }
+                h1 { font-size: 24px; margin-bottom: 10px; direction: ltr; }
+                h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; direction: ltr; }
+                h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; direction: ltr; }
+                p { margin: 10px 0; direction: ltr; }
             </style>
         </head>
         <body>
