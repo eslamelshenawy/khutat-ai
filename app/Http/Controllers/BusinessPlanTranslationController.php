@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusinessPlan;
-use App\Services\AiService;
+use App\Services\OllamaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +12,7 @@ class BusinessPlanTranslationController extends Controller
 {
     protected $aiService;
 
-    public function __construct(AiService $aiService)
+    public function __construct(OllamaService $aiService)
     {
         $this->aiService = $aiService;
     }
@@ -148,7 +148,8 @@ class BusinessPlanTranslationController extends Controller
         $prompt = "Translate the following text to {$languageName}. Keep the same tone and style. Only return the translation without any explanations:\n\n{$text}";
 
         try {
-            $translation = $this->aiService->generateText($prompt);
+            // Use improveContent method which uses generate internally
+            $translation = $this->aiService->improveContent($text, "Translate to {$languageName}");
             return $translation;
         } catch (\Exception $e) {
             Log::warning('Translation fallback', [
