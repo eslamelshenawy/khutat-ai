@@ -6,6 +6,7 @@ use App\Livewire\WizardSteps;
 use App\Livewire\Wizard\ChapterEditor;
 use App\Http\Controllers\BusinessPlanController;
 use App\Http\Controllers\BusinessPlanShareController;
+use App\Http\Controllers\PlanVersionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -60,6 +61,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{share}/deactivate', [BusinessPlanShareController::class, 'deactivate'])->name('business-plans.share.deactivate');
         Route::get('/{share}/analytics', [BusinessPlanShareController::class, 'analytics'])->name('business-plans.share.analytics');
         Route::post('/{share}/email', [BusinessPlanShareController::class, 'sendEmail'])->name('business-plans.share.email');
+    });
+
+    // Version History Routes
+    Route::prefix('plans/{businessPlan}/versions')->group(function () {
+        Route::get('/', [PlanVersionController::class, 'index'])->name('business-plans.versions.index');
+        Route::post('/', [PlanVersionController::class, 'store'])->name('business-plans.versions.store');
+        Route::get('/{version}', [PlanVersionController::class, 'show'])->name('business-plans.versions.show');
+        Route::post('/{version}/restore', [PlanVersionController::class, 'restore'])->name('business-plans.versions.restore');
+        Route::delete('/{version}', [PlanVersionController::class, 'destroy'])->name('business-plans.versions.destroy');
+        Route::get('/{version1}/compare/{version2}', [PlanVersionController::class, 'compare'])->name('business-plans.versions.compare');
     });
 
     // Export Routes (specific routes for each format)
