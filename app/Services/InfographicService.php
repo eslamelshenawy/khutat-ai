@@ -219,6 +219,9 @@ class InfographicService
         $fontSize = $this->getFontSize($size);
         $font = $this->getFontPath();
 
+        // Fix Arabic text direction
+        $text = $this->fixArabicText($text);
+
         if ($font && file_exists($font)) {
             $bbox = imagettfbbox($fontSize, 0, $font, $text);
             $textWidth = abs($bbox[4] - $bbox[0]);
@@ -239,6 +242,9 @@ class InfographicService
         $fontSize = $this->getFontSize($size);
         $font = $this->getFontPath();
 
+        // Fix Arabic text direction
+        $text = $this->fixArabicText($text);
+
         if ($font && file_exists($font)) {
             imagettftext($this->image, $fontSize, 0, $x, $y, $color, $font, $text);
         } else {
@@ -253,6 +259,9 @@ class InfographicService
     {
         $fontSize = $this->getFontSize($size);
         $font = $this->getFontPath();
+
+        // Fix Arabic text direction
+        $text = $this->fixArabicText($text);
 
         if ($font && file_exists($font)) {
             $bbox = imagettfbbox($fontSize, 0, $font, $text);
@@ -304,6 +313,32 @@ class InfographicService
 
         // Return null to use built-in GD fonts (won't work for Arabic)
         return null;
+    }
+
+    /**
+     * Fix Arabic text for GD (reverse and reshape)
+     */
+    protected function fixArabicText($text): string
+    {
+        if (empty($text)) {
+            return $text;
+        }
+
+        // For Arabic text, we need to reverse it for GD
+        // This is a simple approach - for production use arabic-reshaper library
+        $text = mb_convert_encoding($text, 'HTML-ENTITIES', 'UTF-8');
+        $text = preg_replace('/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i', '$1', $text);
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Simple reverse for RTL text
+        if (preg_match('/\p{Arabic}/u', $text)) {
+            // Split by words/spaces to keep numbers in correct order
+            $parts = preg_split('/([\s\d]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $reversed = array_reverse($parts);
+            $text = implode('', $reversed);
+        }
+
+        return $text;
     }
 
     /**
