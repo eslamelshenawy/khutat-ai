@@ -146,7 +146,7 @@
                                     محتوى الفصل
                                 </label>
                                 <textarea
-                                    wire:model.defer="currentChapter.content"
+                                    wire:model="currentChapter.content"
                                     id="content"
                                     rows="16"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none font-['Tajawal']"
