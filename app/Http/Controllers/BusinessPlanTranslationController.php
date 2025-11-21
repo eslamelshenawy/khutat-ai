@@ -7,6 +7,7 @@ use App\Services\OllamaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class BusinessPlanTranslationController extends Controller
 {
@@ -260,7 +261,7 @@ class BusinessPlanTranslationController extends Controller
     protected function exportAsPdf($content, $title)
     {
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML("<pre>{$content}</pre>");
-        return $pdf->download(slug($title) . '_translated.pdf');
+        return $pdf->download(Str::slug($title) . '_translated.pdf');
     }
 
     /**
@@ -272,7 +273,7 @@ class BusinessPlanTranslationController extends Controller
         $section = $phpWord->addSection();
         $section->addText($content);
 
-        $filename = slug($title) . '_translated.docx';
+        $filename = Str::slug($title) . '_translated.docx';
         $tempFile = storage_path('app/temp/' . $filename);
 
         if (!file_exists(dirname($tempFile))) {
@@ -290,7 +291,7 @@ class BusinessPlanTranslationController extends Controller
      */
     protected function exportAsText($content, $title)
     {
-        $filename = slug($title) . '_translated.txt';
+        $filename = Str::slug($title) . '_translated.txt';
         return response($content)
             ->header('Content-Type', 'text/plain')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
