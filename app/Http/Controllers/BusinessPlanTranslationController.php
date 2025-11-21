@@ -260,7 +260,26 @@ class BusinessPlanTranslationController extends Controller
      */
     protected function exportAsPdf($content, $title)
     {
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML("<pre>{$content}</pre>");
+        // Convert markdown to HTML with proper encoding
+        $html = '
+        <!DOCTYPE html>
+        <html dir="ltr">
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: DejaVu Sans, sans-serif; line-height: 1.6; padding: 20px; }
+                h1 { font-size: 24px; margin-bottom: 10px; }
+                h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
+                h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
+                p { margin: 10px 0; }
+            </style>
+        </head>
+        <body>
+            ' . nl2br(htmlspecialchars($content, ENT_QUOTES, 'UTF-8')) . '
+        </body>
+        </html>';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
         return $pdf->download(Str::slug($title) . '_translated.pdf');
     }
 
