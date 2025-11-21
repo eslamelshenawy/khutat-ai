@@ -9,7 +9,7 @@
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">تحليلات متقدمة</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-2">رؤى شاملة عن أداءك واستخدام النظام</p>
             </div>
-            <a href="{{ route('dashboard.index') }}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <a href="{{ route('dashboard') }}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                 ← العودة للوحة التحكم
             </a>
         </div>
