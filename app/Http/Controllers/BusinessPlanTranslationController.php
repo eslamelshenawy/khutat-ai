@@ -137,7 +137,7 @@ class BusinessPlanTranslationController extends Controller
     }
 
     /**
-     * Simple translation without AI (for quick results)
+     * Simple translation using Google Translate
      */
     protected function translateTextSimple($text, $targetLanguage)
     {
@@ -145,8 +145,22 @@ class BusinessPlanTranslationController extends Controller
             return '';
         }
 
-        // Return original text with language indicator
-        // This avoids timeout - for production, use a translation API service
+        try {
+            // Use Google Translate library
+            if (class_exists('\Stichoza\GoogleTranslate\GoogleTranslate')) {
+                $tr = new \Stichoza\GoogleTranslate\GoogleTranslate();
+                $tr->setSource('ar'); // Arabic source
+                $tr->setTarget($targetLanguage);
+                return $tr->translate($text);
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Google Translate failed', [
+                'error' => $e->getMessage(),
+                'text' => substr($text, 0, 50),
+            ]);
+        }
+
+        // Fallback to original text
         return $text;
     }
 
