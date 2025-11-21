@@ -70,6 +70,9 @@
                                     <a href="{{ route('business-plans.infographic', $businessPlan) }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         📊 توليد إنفوجرافيك
                                     </a>
+                                    <a href="{{ route('business-plans.qr-code', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        📱 رمز QR
+                                    </a>
 
                                     <div class="border-t my-1"></div>
                                     <div class="px-4 py-2 text-xs font-semibold text-gray-500">ذكاء اصطناعي</div>
