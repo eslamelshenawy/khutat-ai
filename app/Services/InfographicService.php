@@ -285,9 +285,13 @@ class InfographicService
     protected function getFontPath(): ?string
     {
         // Only check paths within allowed directories
+        // Try Arabic fonts first
         $paths = [
-            public_path('fonts/Arial.ttf'),
+            storage_path('fonts/Tajawal-Bold.ttf'),
+            storage_path('fonts/Tajawal-Regular.ttf'),
+            public_path('fonts/Tajawal-Regular.ttf'),
             storage_path('fonts/Arial.ttf'),
+            public_path('fonts/Arial.ttf'),
             base_path('fonts/Arial.ttf'),
         ];
 
@@ -298,7 +302,7 @@ class InfographicService
             }
         }
 
-        // Return null to use built-in GD fonts
+        // Return null to use built-in GD fonts (won't work for Arabic)
         return null;
     }
 
