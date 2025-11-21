@@ -133,6 +133,18 @@ Route::middleware(['auth'])->group(function () {
     // Export Templates Routes
     Route::resource('export-templates', ExportTemplateController::class);
     Route::post('/export-templates/{exportTemplate}/set-default', [ExportTemplateController::class, 'setDefault'])->name('export-templates.set-default');
+
+    // Tasks Routes
+    Route::prefix('plans/{businessPlan}/tasks')->group(function () {
+        Route::get('/', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+        Route::post('/', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+        Route::put('/{task}', [App\Http\Controllers\TaskController::class, 'update'])->name('tasks.update');
+        Route::delete('/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])->name('tasks.destroy');
+        Route::post('/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.update-status');
+    });
+
+    // My Tasks
+    Route::get('/my-tasks', [App\Http\Controllers\TaskController::class, 'myTasks'])->name('tasks.my-tasks');
 });
 
 // Public Share View Routes (outside auth middleware)

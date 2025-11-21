@@ -284,6 +284,14 @@ class BusinessPlan extends Model implements HasMedia
     }
 
     /**
+     * Get the tasks for this business plan
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class)->latest();
+    }
+
+    /**
      * Register media collections for this model.
      */
     public function registerMediaCollections(): void

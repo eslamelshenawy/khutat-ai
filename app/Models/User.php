@@ -114,4 +114,20 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Comment::class);
     }
+
+    /**
+     * Get tasks assigned to this user
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * Get tasks created by this user
+     */
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_by');
+    }
 }

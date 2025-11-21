@@ -94,6 +94,9 @@
                                     <a href="{{ route('financial.index', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         💰 البيانات المالية
                                     </a>
+                                    <a href="{{ route('tasks.index', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        ✅ إدارة المهام
+                                    </a>
                                     <a href="{{ route('business-plans.translate', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         🌐 ترجمة الخطة
                                     </a>
