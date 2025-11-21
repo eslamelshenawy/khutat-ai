@@ -21,7 +21,7 @@
                 <div class="text-center">
                     <div class="inline-block p-6 bg-white rounded-lg border-4 border-gray-200 shadow-lg mb-6">
                         <div class="bg-white p-4">
-                            {!! $qrCodeSvg !!}
+                            <img src="{{ $qrCodeDataUrl }}" alt="QR Code" class="mx-auto" style="width: 300px; height: 300px;">
                         </div>
                     </div>
 

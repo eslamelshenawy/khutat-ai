@@ -323,8 +323,12 @@ class BusinessPlanController extends Controller
         Gate::authorize('view', $businessPlan);
 
         $qrCodeService = new QrCodeService();
-        $qrCodeSvg = $qrCodeService->generateForBusinessPlan($businessPlan);
+        $qrCodePng = $qrCodeService->generateForBusinessPlan($businessPlan);
 
-        return view('business-plans.qr-code', compact('businessPlan', 'qrCodeSvg'));
+        // Convert PNG binary to base64 for display
+        $qrCodeBase64 = base64_encode($qrCodePng);
+        $qrCodeDataUrl = 'data:image/png;base64,' . $qrCodeBase64;
+
+        return view('business-plans.qr-code', compact('businessPlan', 'qrCodeDataUrl'));
     }
 }
