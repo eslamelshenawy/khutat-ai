@@ -8,6 +8,7 @@ use App\Http\Controllers\BusinessPlanController;
 use App\Http\Controllers\BusinessPlanShareController;
 use App\Http\Controllers\PlanVersionController;
 use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\BusinessPlanTranslationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,6 +79,13 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('plans/{businessPlan}/chapters')->group(function () {
         Route::post('/reorder', [ChapterController::class, 'updateOrder'])->name('business-plans.chapters.reorder');
         Route::delete('/{chapter}', [ChapterController::class, 'destroy'])->name('business-plans.chapters.destroy');
+    });
+
+    // Translation Routes
+    Route::prefix('plans/{businessPlan}/translate')->group(function () {
+        Route::get('/', [BusinessPlanTranslationController::class, 'index'])->name('business-plans.translate');
+        Route::post('/process', [BusinessPlanTranslationController::class, 'translate'])->name('business-plans.translate.process');
+        Route::post('/export', [BusinessPlanTranslationController::class, 'export'])->name('business-plans.translate.export');
     });
 
     // Export Routes (specific routes for each format)
