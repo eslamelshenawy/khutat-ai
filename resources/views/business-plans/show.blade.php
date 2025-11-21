@@ -81,6 +81,12 @@
                                     </form>
 
                                     <div class="border-t my-1"></div>
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500">مشاركة</div>
+                                    <a href="{{ route('business-plans.share.create', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        🔗 إنشاء رابط مشاركة
+                                    </a>
+
+                                    <div class="border-t my-1"></div>
                                     <div class="px-4 py-2 text-xs font-semibold text-gray-500">إجراءات</div>
                                     <form action="{{ route('business-plans.duplicate', $businessPlan) }}" method="POST">
                                         @csrf
