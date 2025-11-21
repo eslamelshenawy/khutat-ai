@@ -86,9 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('plans/{businessPlan}/translate')->group(function () {
         Route::get('/', [BusinessPlanTranslationController::class, 'index'])->name('business-plans.translate');
         Route::post('/process', [BusinessPlanTranslationController::class, 'translate'])->name('business-plans.translate.process');
-        Route::get('/export', function($businessPlan) {
-            return redirect()->route('business-plans.translate', $businessPlan)->with('info', 'يرجى ترجمة الخطة أولاً ثم استخدام زر التصدير من صفحة النتائج.');
-        });
+        Route::get('/export', [BusinessPlanTranslationController::class, 'exportForm'])->name('business-plans.translate.export-form');
         Route::post('/export', [BusinessPlanTranslationController::class, 'export'])->name('business-plans.translate.export');
     });
 

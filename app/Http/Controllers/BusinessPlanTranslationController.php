@@ -97,6 +97,17 @@ class BusinessPlanTranslationController extends Controller
     }
 
     /**
+     * Show export form (redirect to translate page)
+     */
+    public function exportForm(BusinessPlan $businessPlan)
+    {
+        Gate::authorize('view', $businessPlan);
+
+        return redirect()->route('business-plans.translate', $businessPlan)
+            ->with('info', 'يرجى ترجمة الخطة أولاً ثم استخدام زر التصدير من صفحة النتائج.');
+    }
+
+    /**
      * Export translated plan
      */
     public function export(Request $request, BusinessPlan $businessPlan)
