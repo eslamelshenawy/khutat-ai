@@ -7,6 +7,7 @@ use App\Livewire\Wizard\ChapterEditor;
 use App\Http\Controllers\BusinessPlanController;
 use App\Http\Controllers\BusinessPlanShareController;
 use App\Http\Controllers\PlanVersionController;
+use App\Http\Controllers\ChapterController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -71,6 +72,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{version}/restore', [PlanVersionController::class, 'restore'])->name('business-plans.versions.restore');
         Route::delete('/{version}', [PlanVersionController::class, 'destroy'])->name('business-plans.versions.destroy');
         Route::get('/{version1}/compare/{version2}', [PlanVersionController::class, 'compare'])->name('business-plans.versions.compare');
+    });
+
+    // Chapter Management Routes
+    Route::prefix('plans/{businessPlan}/chapters')->group(function () {
+        Route::post('/reorder', [ChapterController::class, 'updateOrder'])->name('business-plans.chapters.reorder');
+        Route::delete('/{chapter}', [ChapterController::class, 'destroy'])->name('business-plans.chapters.destroy');
     });
 
     // Export Routes (specific routes for each format)

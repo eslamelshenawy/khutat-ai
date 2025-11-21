@@ -24,18 +24,36 @@
                     </div>
                 </div>
 
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-1">قائمة الفصول</h3>
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">قائمة الفصول</h3>
+                    <button
+                        id="toggleDragMode"
+                        class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                        title="تفعيل/إلغاء إعادة الترتيب"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                        </svg>
+                        <span id="dragModeText">إعادة ترتيب</span>
+                    </button>
+                </div>
 
-                <div class="space-y-2">
+                <div id="chaptersList" class="space-y-2">
                     @forelse($chapters as $index => $chapter)
                         <button
+                            data-chapter-id="{{ $chapter->id }}"
                             wire:click="selectChapter({{ $chapter->id }})"
-                            class="w-full text-right px-4 py-3.5 rounded-lg transition-all duration-200 group
+                            class="chapter-item w-full text-right px-4 py-3.5 rounded-lg transition-all duration-200 group
                                    {{ $currentChapter && $currentChapter->id == $chapter->id
                                       ? 'bg-gradient-to-l from-indigo-100 to-indigo-50 border-r-4 border-indigo-600 shadow-sm'
                                       : 'hover:bg-gray-50 border border-transparent hover:border-gray-200' }}"
                         >
                             <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-2 drag-handle cursor-move opacity-0 transition-opacity">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                                    </svg>
+                                </div>
                                 <div class="flex-1 text-right">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold
@@ -344,4 +362,112 @@
             </div>
         </div>
     </div>
+
+    {{-- Sortable.js CDN --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    {{-- Drag & Drop Functionality --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chaptersList = document.getElementById('chaptersList');
+            const toggleButton = document.getElementById('toggleDragMode');
+            const dragModeText = document.getElementById('dragModeText');
+            let sortable = null;
+            let isDragMode = false;
+
+            // Initialize Sortable (disabled by default)
+            sortable = new Sortable(chaptersList, {
+                animation: 150,
+                handle: '.drag-handle',
+                disabled: true,
+                ghostClass: 'bg-indigo-100',
+                chosenClass: 'ring-2 ring-indigo-500',
+                dragClass: 'opacity-50',
+                onEnd: function(evt) {
+                    saveNewOrder();
+                }
+            });
+
+            // Toggle drag mode
+            toggleButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                isDragMode = !isDragMode;
+                sortable.option('disabled', !isDragMode);
+
+                const dragHandles = document.querySelectorAll('.drag-handle');
+                const chapterItems = document.querySelectorAll('.chapter-item');
+
+                if (isDragMode) {
+                    dragModeText.textContent = 'حفظ الترتيب';
+                    toggleButton.classList.add('text-green-600', 'hover:text-green-800');
+                    toggleButton.classList.remove('text-indigo-600', 'hover:text-indigo-800');
+                    dragHandles.forEach(handle => handle.classList.remove('opacity-0'));
+                    chapterItems.forEach(item => {
+                        item.style.pointerEvents = 'auto';
+                        item.removeAttribute('wire:click');
+                    });
+                } else {
+                    dragModeText.textContent = 'إعادة ترتيب';
+                    toggleButton.classList.remove('text-green-600', 'hover:text-green-800');
+                    toggleButton.classList.add('text-indigo-600', 'hover:text-indigo-800');
+                    dragHandles.forEach(handle => handle.classList.add('opacity-0'));
+                    saveNewOrder();
+                }
+            });
+
+            function saveNewOrder() {
+                const chapterItems = document.querySelectorAll('.chapter-item');
+                const chapters = [];
+
+                chapterItems.forEach((item, index) => {
+                    const chapterId = item.getAttribute('data-chapter-id');
+                    if (chapterId) {
+                        chapters.push({
+                            id: parseInt(chapterId),
+                            sort_order: index
+                        });
+                    }
+                });
+
+                if (chapters.length > 0) {
+                    fetch('{{ route("business-plans.chapters.reorder", $businessPlan) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ chapters: chapters })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: {
+                                    message: data.message || 'تم تحديث ترتيب الفصول بنجاح',
+                                    type: 'success'
+                                }
+                            }));
+
+                            // Reload the page to reflect new order
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            throw new Error(data.message || 'فشل تحديث الترتيب');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: {
+                                message: error.message || 'حدث خطأ أثناء حفظ الترتيب',
+                                type: 'error'
+                            }
+                        }));
+                    });
+                }
+            }
+        });
+    </script>
 </div>
