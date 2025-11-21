@@ -63,6 +63,9 @@
                         <a href="{{ route('business-plans.index') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             خططي
                         </a>
+                        <a href="{{ route('tasks.my-tasks') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            مهامي
+                        </a>
                         <a href="{{ route('chat.index') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             محادثة AI
                         </a>

@@ -299,12 +299,10 @@ class BusinessPlan extends Model implements HasMedia
         $this
             ->addMediaCollection('logo')
             ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-            ->maxFileSize(5 * 1024 * 1024); // 5MB
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
         $this
             ->addMediaCollection('images')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-            ->maxFileSize(5 * 1024 * 1024); // 5MB per image
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
     }
 }
