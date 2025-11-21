@@ -369,6 +369,92 @@
             </div>
             @endif
 
+            <!-- Images & Logo Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <svg class="w-6 h-6 ml-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    الصور والشعار
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Logo Upload -->
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-3">شعار الشركة</h4>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            @if($businessPlan->getFirstMedia('logo'))
+                                <img src="{{ $businessPlan->getFirstMedia('logo')->getUrl() }}"
+                                     class="mx-auto mb-3 max-h-32 rounded">
+                                <form action="{{ route('business-plans.delete-image', [$businessPlan, $businessPlan->getFirstMedia('logo')->id]) }}"
+                                      method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-sm text-red-600 hover:text-red-800">حذف الشعار</button>
+                                </form>
+                            @else
+                                <form action="{{ route('business-plans.upload-logo', $businessPlan) }}"
+                                      method="POST" enctype="multipart/form-data" id="logoForm">
+                                    @csrf
+                                    <input type="file" name="logo" accept="image/*" id="logoInput" class="hidden">
+                                    <label for="logoInput" class="cursor-pointer">
+                                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <p class="text-gray-600">اضغط لرفع الشعار</p>
+                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF (Max 5MB)</p>
+                                    </label>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Images Upload -->
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-3">صور إضافية</h4>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <form action="{{ route('business-plans.upload-image', $businessPlan) }}"
+                                  method="POST" enctype="multipart/form-data" id="imageForm">
+                                @csrf
+                                <input type="file" name="image" accept="image/*" id="imageInput" class="hidden">
+                                <label for="imageInput" class="cursor-pointer">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <p class="text-gray-600">اضغط لرفع صورة</p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF (Max 5MB)</p>
+                                </label>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Uploaded Images Gallery -->
+                @if($businessPlan->getMedia('images')->count() > 0)
+                <div>
+                    <h4 class="font-bold text-gray-900 mb-3">الصور المرفوعة</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach($businessPlan->getMedia('images') as $image)
+                        <div class="relative group">
+                            <img src="{{ $image->getUrl() }}" class="w-full h-32 object-cover rounded-lg">
+                            <form action="{{ route('business-plans.delete-image', [$businessPlan, $image->id]) }}"
+                                  method="POST" class="absolute top-2 right-2">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+
             <!-- Comments Section -->
             <div class="bg-white rounded-lg shadow-md p-6 mt-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
@@ -490,4 +576,22 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        // Auto-submit logo form on file select
+        document.getElementById('logoInput')?.addEventListener('change', function() {
+            if (this.files[0]) {
+                document.getElementById('logoForm').submit();
+            }
+        });
+
+        // Auto-submit image form on file select
+        document.getElementById('imageInput')?.addEventListener('change', function() {
+            if (this.files[0]) {
+                document.getElementById('imageForm').submit();
+            }
+        });
+    </script>
+    @endpush
 </x-layouts.app>

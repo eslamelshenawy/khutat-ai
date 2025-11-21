@@ -56,6 +56,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/plans/{businessPlan}/export/{format}', [BusinessPlanController::class, 'export'])->name('business-plans.export');
     Route::post('/plans/{businessPlan}/analyze', [BusinessPlanController::class, 'analyze'])->name('business-plans.analyze');
     Route::post('/plans/{businessPlan}/recommendations', [BusinessPlanController::class, 'recommendations'])->name('business-plans.recommendations');
+    Route::post('/plans/{businessPlan}/upload-image', [BusinessPlanController::class, 'uploadImage'])->name('business-plans.upload-image');
+    Route::post('/plans/{businessPlan}/upload-logo', [BusinessPlanController::class, 'uploadLogo'])->name('business-plans.upload-logo');
+    Route::delete('/plans/{businessPlan}/media/{mediaId}', [BusinessPlanController::class, 'deleteImage'])->name('business-plans.delete-image');
 
     // Share Links Routes
     Route::prefix('plans/{businessPlan}/share')->group(function () {

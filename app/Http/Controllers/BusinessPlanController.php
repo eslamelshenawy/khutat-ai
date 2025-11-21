@@ -331,4 +331,86 @@ class BusinessPlanController extends Controller
 
         return view('business-plans.qr-code', compact('businessPlan', 'qrCodeDataUrl'));
     }
+
+    /**
+     * Upload image to business plan
+     */
+    public function uploadImage(Request $request, BusinessPlan $businessPlan)
+    {
+        Gate::authorize('update', $businessPlan);
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
+        ]);
+
+        try {
+            $media = $businessPlan->addMediaFromRequest('image')
+                ->toMediaCollection('images');
+
+            return response()->json([
+                'success' => true,
+                'url' => $media->getUrl(),
+                'id' => $media->id,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في رفع الصورة: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload logo to business plan
+     */
+    public function uploadLogo(Request $request, BusinessPlan $businessPlan)
+    {
+        Gate::authorize('update', $businessPlan);
+
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        try {
+            // Delete old logo if exists
+            $businessPlan->clearMediaCollection('logo');
+
+            $media = $businessPlan->addMediaFromRequest('logo')
+                ->toMediaCollection('logo');
+
+            return response()->json([
+                'success' => true,
+                'url' => $media->getUrl(),
+                'id' => $media->id,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في رفع الشعار: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete image from business plan
+     */
+    public function deleteImage(Request $request, BusinessPlan $businessPlan, $mediaId)
+    {
+        Gate::authorize('update', $businessPlan);
+
+        try {
+            $media = $businessPlan->media()->findOrFail($mediaId);
+            $media->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف الصورة بنجاح',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في حذف الصورة',
+            ], 500);
+        }
+    }
 }
