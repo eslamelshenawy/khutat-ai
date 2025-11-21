@@ -225,7 +225,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <a href="{{ route('wizard.start') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow p-6 hover:shadow-lg transition transform hover:-translate-y-1">
             <div class="flex items-center">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,6 +246,18 @@
                 <div class="mr-4">
                     <h4 class="font-bold text-lg">كل الخطط</h4>
                     <p class="text-sm text-purple-100">عرض جميع خطط العمل</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('export-templates.index') }}" class="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-lg shadow p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+            <div class="flex items-center">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                </svg>
+                <div class="mr-4">
+                    <h4 class="font-bold text-lg">قوالب التصدير</h4>
+                    <p class="text-sm text-orange-100">خصص شكل صادراتك</p>
                 </div>
             </div>
         </a>
