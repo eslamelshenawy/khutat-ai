@@ -149,6 +149,28 @@ class BusinessPlan extends Model
     }
 
     /**
+     * Get the shares for this business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shares()
+    {
+        return $this->hasMany(BusinessPlanShare::class);
+    }
+
+    /**
+     * Get active shares for this business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function activeShares()
+    {
+        return $this->shares()->where('is_active', true)->where(function ($query) {
+            $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        });
+    }
+
+    /**
      * Get the chat messages for this plan.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

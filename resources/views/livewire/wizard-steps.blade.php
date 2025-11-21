@@ -254,6 +254,39 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Auto-save Status Indicator --}}
+                    <div class="mt-4 flex items-center justify-between text-xs text-gray-500"
+                         x-data="{
+                             autoSaveTime: null,
+                             autoSaveInterval: null,
+                             mounted() {
+                                 // Auto-save every 60 seconds
+                                 this.autoSaveInterval = setInterval(() => {
+                                     @this.call('autoSave');
+                                 }, 60000); // 60 seconds
+                             },
+                             destroy() {
+                                 if (this.autoSaveInterval) {
+                                     clearInterval(this.autoSaveInterval);
+                                 }
+                             }
+                         }"
+                         x-init="mounted()"
+                         @auto-saved.window="autoSaveTime = $event.detail.time"
+                    >
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span x-show="autoSaveTime" class="text-green-600 font-medium">
+                                آخر حفظ تلقائي: <span x-text="autoSaveTime"></span>
+                            </span>
+                            <span x-show="!autoSaveTime" class="text-gray-500">
+                                الحفظ التلقائي مفعّل (كل 60 ثانية)
+                            </span>
+                        </div>
+                    </div>
                 @else
                     {{-- No Chapter Selected --}}
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">

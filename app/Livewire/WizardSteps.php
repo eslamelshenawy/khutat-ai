@@ -20,6 +20,8 @@ class WizardSteps extends Component
     public $showAIGenerator = false;
     public $aiGenerating = false;
     public $refreshKey = 0; // Used to force textarea re-render
+    public $lastSaved = null; // Track last auto-save time
+    public $autoSaveEnabled = true; // Auto-save toggle
 
     public function mount($businessPlan)
     {
@@ -74,7 +76,7 @@ class WizardSteps extends Component
         }
     }
 
-    public function saveChapter()
+    public function saveChapter($isAutoSave = false)
     {
         Gate::authorize('update', $this->plan);
 
@@ -90,10 +92,19 @@ class WizardSteps extends Component
                 'status' => empty($this->currentChapter['content']) ? 'empty' : 'draft',
             ]);
 
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'message' => 'تم حفظ الفصل بنجاح'
-            ]);
+            // Update last saved time
+            $this->lastSaved = now()->format('H:i:s');
+
+            if (!$isAutoSave) {
+                $this->dispatch('notify', [
+                    'type' => 'success',
+                    'message' => 'تم حفظ الفصل بنجاح'
+                ]);
+            } else {
+                $this->dispatch('auto-saved', [
+                    'time' => $this->lastSaved
+                ]);
+            }
 
             // Reload chapters
             $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
@@ -111,6 +122,13 @@ class WizardSteps extends Component
 
             // Update plan completion percentage
             $this->updateCompletionPercentage();
+        }
+    }
+
+    public function autoSave()
+    {
+        if ($this->autoSaveEnabled && $this->currentChapterId) {
+            $this->saveChapter(true);
         }
     }
 
