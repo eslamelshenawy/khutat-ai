@@ -141,7 +141,7 @@
 
                         {{-- Content Editor --}}
                         <div class="px-6 py-6">
-                            <div class="mb-4" wire:key="chapter-{{ $currentChapterId }}">
+                            <div class="mb-4" wire:key="chapter-{{ $currentChapterId }}-{{ $refreshKey }}">
                                 <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
                                     محتوى الفصل
                                 </label>

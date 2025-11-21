@@ -19,6 +19,7 @@ class WizardSteps extends Component
     public $chapters = [];
     public $showAIGenerator = false;
     public $aiGenerating = false;
+    public $refreshKey = 0; // Used to force textarea re-render
 
     public function mount($businessPlan)
     {
@@ -154,6 +155,9 @@ class WizardSteps extends Component
                 ];
 
                 $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
+
+                // Force textarea re-render by changing key
+                $this->refreshKey++;
 
                 $this->dispatch('notify', [
                     'type' => 'success',
