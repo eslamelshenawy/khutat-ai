@@ -93,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/plans/{businessPlan}/export-word', [App\Http\Controllers\BusinessPlanExportController::class, 'exportWord'])->name('business-plans.export-word');
     Route::get('/plans/{businessPlan}/export-excel', [App\Http\Controllers\BusinessPlanExportController::class, 'exportExcel'])->name('business-plans.export-excel');
     Route::get('/plans/{businessPlan}/export-powerpoint', [App\Http\Controllers\BusinessPlanExportController::class, 'exportPowerPoint'])->name('business-plans.export-powerpoint');
+    Route::get('/plans/{businessPlan}/infographic', [App\Http\Controllers\BusinessPlanExportController::class, 'generateInfographic'])->name('business-plans.infographic');
 
     // AI Chat Routes
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');

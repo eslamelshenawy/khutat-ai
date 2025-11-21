@@ -181,7 +181,7 @@
             </svg>
             <h3 class="text-2xl font-bold text-white">ميزات جديدة متاحة الآن!</h3>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Version History -->
             <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition">
                 <div class="flex items-center mb-2">
@@ -210,6 +210,16 @@
                 </div>
                 <p class="text-white text-opacity-90 text-sm mb-3">رتب فصول خطتك بالسحب والإفلات ببساطة</p>
                 <span class="inline-block bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full">في محرر الفصول</span>
+            </div>
+
+            <!-- Infographic -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition">
+                <div class="flex items-center mb-2">
+                    <span class="text-3xl ml-2">📊</span>
+                    <h4 class="text-white font-bold text-lg">إنفوجرافيك تلقائي</h4>
+                </div>
+                <p class="text-white text-opacity-90 text-sm mb-3">احصل على ملخص مرئي احترافي لخطة عملك</p>
+                <span class="inline-block bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full">تصميم احترافي</span>
             </div>
         </div>
     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BusinessPlan;
 use App\Services\ExportService;
+use App\Services\InfographicService;
 use Illuminate\Http\Request;
 
 class BusinessPlanExportController extends Controller
@@ -120,6 +121,34 @@ class BusinessPlanExportController extends Controller
             ]);
 
             abort(500, 'خطأ في تصدير PowerPoint: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate infographic for business plan
+     */
+    public function generateInfographic(BusinessPlan $businessPlan)
+    {
+        // Check authorization
+        $this->authorize('view', $businessPlan);
+
+        try {
+            $infographicService = new InfographicService();
+            $path = $infographicService->generateInfographic($businessPlan);
+            $fullPath = storage_path('app/public/' . $path);
+
+            if (!file_exists($fullPath)) {
+                abort(404, 'Infographic file not found');
+            }
+
+            return response()->file($fullPath);
+        } catch (\Exception $e) {
+            \Log::error('Infographic Generation Error', [
+                'plan_id' => $businessPlan->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            abort(500, 'خطأ في توليد الإنفوجرافيك: ' . $e->getMessage());
         }
     }
 }
