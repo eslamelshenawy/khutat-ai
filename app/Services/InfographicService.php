@@ -284,19 +284,21 @@ class InfographicService
      */
     protected function getFontPath(): ?string
     {
+        // Only check paths within allowed directories
         $paths = [
             public_path('fonts/Arial.ttf'),
             storage_path('fonts/Arial.ttf'),
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-            '/usr/share/fonts/TTF/DejaVuSans.ttf',
+            base_path('fonts/Arial.ttf'),
         ];
 
         foreach ($paths as $path) {
-            if (file_exists($path)) {
+            // Suppress errors from open_basedir restrictions
+            if (@file_exists($path)) {
                 return $path;
             }
         }
 
+        // Return null to use built-in GD fonts
         return null;
     }
 
