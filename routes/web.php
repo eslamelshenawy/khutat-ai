@@ -99,6 +99,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/plans/{businessPlan}/qr-code', [BusinessPlanController::class, 'showQrCode'])->name('business-plans.qr-code');
     Route::get('/plans/{businessPlan}/qr-code/download', [BusinessPlanController::class, 'generateQrCode'])->name('business-plans.qr-code.download');
 
+    // Comments Routes
+    Route::prefix('plans/{businessPlan}/comments')->group(function () {
+        Route::post('/', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+        Route::put('/{comment}', [App\Http\Controllers\CommentController::class, 'update'])->name('comments.update');
+        Route::delete('/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
+        Route::post('/{comment}/resolve', [App\Http\Controllers\CommentController::class, 'resolve'])->name('comments.resolve');
+    });
+
+    // Financial Data Routes
+    Route::prefix('plans/{businessPlan}/financial')->group(function () {
+        Route::get('/', [App\Http\Controllers\FinancialDataController::class, 'index'])->name('financial.index');
+        Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'store'])->name('financial.store');
+        Route::delete('/{financialData}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('financial.destroy');
+    });
+
     // AI Chat Routes
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [App\Http\Controllers\ChatController::class, 'send'])->name('chat.send');

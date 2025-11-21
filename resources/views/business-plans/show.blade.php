@@ -90,6 +90,15 @@
                                     </form>
 
                                     <div class="border-t my-1"></div>
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500">إدارة</div>
+                                    <a href="{{ route('financial.index', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        💰 البيانات المالية
+                                    </a>
+                                    <a href="{{ route('business-plans.translate', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        🌐 ترجمة الخطة
+                                    </a>
+
+                                    <div class="border-t my-1"></div>
                                     <div class="px-4 py-2 text-xs font-semibold text-gray-500">مشاركة</div>
                                     <a href="{{ route('business-plans.share.create', $businessPlan) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         🔗 إنشاء رابط مشاركة
@@ -359,6 +368,126 @@
                 @endif
             </div>
             @endif
+
+            <!-- Comments Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <svg class="w-6 h-6 ml-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                    </svg>
+                    التعليقات والنقاش
+                </h3>
+
+                <!-- Add Comment Form -->
+                <form action="{{ route('comments.store', $businessPlan) }}" method="POST" class="mb-6">
+                    @csrf
+                    <div class="flex gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-blue-600 font-bold">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <textarea name="content" rows="3" required
+                                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="أضف تعليقك هنا..."></textarea>
+                            <button type="submit" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                إضافة تعليق
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Comments List -->
+                <div class="space-y-4">
+                    @forelse($businessPlan->comments as $comment)
+                    <div class="border-r-4 {{ $comment->is_resolved ? 'border-green-500' : 'border-blue-500' }} bg-gray-50 p-4 rounded">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <span class="text-blue-600 font-bold">{{ substr($comment->user->name, 0, 1) }}</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <span class="font-bold text-gray-900">{{ $comment->user->name }}</span>
+                                        <span class="text-sm text-gray-500 mr-2">{{ $comment->created_at->diffForHumans() }}</span>
+                                        @if($comment->is_resolved)
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mr-2">محلول</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <form action="{{ route('comments.resolve', [$businessPlan, $comment]) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-sm {{ $comment->is_resolved ? 'text-gray-600' : 'text-green-600' }} hover:underline">
+                                                {{ $comment->is_resolved ? 'إلغاء الحل' : 'وضع علامة محلول' }}
+                                            </button>
+                                        </form>
+                                        @can('delete', $comment)
+                                        <form action="{{ route('comments.destroy', [$businessPlan, $comment]) }}" method="POST" class="inline"
+                                              onsubmit="return confirm('هل أنت متأكد من حذف هذا التعليق؟')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-sm text-red-600 hover:underline">حذف</button>
+                                        </form>
+                                        @endcan
+                                    </div>
+                                </div>
+                                <p class="text-gray-700">{{ $comment->content }}</p>
+
+                                <!-- Replies -->
+                                @if($comment->replies->count() > 0)
+                                <div class="mr-6 mt-3 space-y-3">
+                                    @foreach($comment->replies as $reply)
+                                    <div class="bg-white p-3 rounded border border-gray-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div>
+                                                <span class="font-bold text-gray-900">{{ $reply->user->name }}</span>
+                                                <span class="text-sm text-gray-500 mr-2">{{ $reply->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            @can('delete', $reply)
+                                            <form action="{{ route('comments.destroy', [$businessPlan, $reply]) }}" method="POST"
+                                                  onsubmit="return confirm('هل أنت متأكد من حذف هذا الرد؟')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-sm text-red-600 hover:underline">حذف</button>
+                                            </form>
+                                            @endcan
+                                        </div>
+                                        <p class="text-gray-700">{{ $reply->content }}</p>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @endif
+
+                                <!-- Reply Form -->
+                                <form action="{{ route('comments.store', $businessPlan) }}" method="POST" class="mt-3">
+                                    @csrf
+                                    <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                                    <div class="flex gap-2">
+                                        <input type="text" name="content" required
+                                               class="flex-1 border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                                               placeholder="اكتب رداً...">
+                                        <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                                            رد
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <p class="text-lg">لا توجد تعليقات بعد</p>
+                        <p class="text-sm mt-2">كن أول من يعلق على هذه الخطة</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </x-layouts.app>

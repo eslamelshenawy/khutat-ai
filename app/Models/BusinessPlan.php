@@ -276,6 +276,14 @@ class BusinessPlan extends Model implements HasMedia
     }
 
     /**
+     * Get the financial data for this business plan
+     */
+    public function financialData()
+    {
+        return $this->hasMany(FinancialData::class)->orderBy('year');
+    }
+
+    /**
      * Register media collections for this model.
      */
     public function registerMediaCollections(): void
