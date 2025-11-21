@@ -95,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/plans/{businessPlan}/export-excel', [App\Http\Controllers\BusinessPlanExportController::class, 'exportExcel'])->name('business-plans.export-excel');
     Route::get('/plans/{businessPlan}/export-powerpoint', [App\Http\Controllers\BusinessPlanExportController::class, 'exportPowerPoint'])->name('business-plans.export-powerpoint');
     Route::get('/plans/{businessPlan}/infographic', [App\Http\Controllers\BusinessPlanExportController::class, 'generateInfographic'])->name('business-plans.infographic');
+    Route::get('/plans/{businessPlan}/qr-code', [BusinessPlanController::class, 'showQrCode'])->name('business-plans.qr-code');
+    Route::get('/plans/{businessPlan}/qr-code/download', [BusinessPlanController::class, 'generateQrCode'])->name('business-plans.qr-code.download');
 
     // AI Chat Routes
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');

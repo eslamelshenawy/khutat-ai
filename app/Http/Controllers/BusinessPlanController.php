@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Services\ExportService;
 use App\Services\RecommendationService;
 use App\Services\OllamaService;
+use App\Services\QrCodeService;
 use App\Jobs\AnalyzeBusinessPlanJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -302,5 +303,28 @@ class BusinessPlanController extends Controller
         }
 
         return $feedback;
+    }
+
+    /**
+     * Generate QR code for business plan
+     */
+    public function generateQrCode(BusinessPlan $businessPlan, QrCodeService $qrCodeService)
+    {
+        Gate::authorize('view', $businessPlan);
+
+        return $qrCodeService->generateDownloadResponse($businessPlan);
+    }
+
+    /**
+     * Show QR code view
+     */
+    public function showQrCode(BusinessPlan $businessPlan)
+    {
+        Gate::authorize('view', $businessPlan);
+
+        $qrCodeService = new QrCodeService();
+        $qrCodeSvg = $qrCodeService->generateForBusinessPlan($businessPlan);
+
+        return view('business-plans.qr-code', compact('businessPlan', 'qrCodeSvg'));
     }
 }

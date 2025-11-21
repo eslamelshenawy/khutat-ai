@@ -469,5 +469,106 @@
                 }
             }
         });
+
+        // Auto-Save Feature
+        let autoSaveTimeout;
+        let lastSavedContent = '';
+        let saveIndicator = null;
+
+        // Create auto-save indicator
+        function createSaveIndicator() {
+            if (!saveIndicator) {
+                saveIndicator = document.createElement('div');
+                saveIndicator.id = 'autoSaveIndicator';
+                saveIndicator.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 20px;
+                    background: rgba(59, 130, 246, 0.95);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    z-index: 9999;
+                    display: none;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                `;
+                document.body.appendChild(saveIndicator);
+            }
+            return saveIndicator;
+        }
+
+        function showSaveIndicator(message, type = 'saving') {
+            const indicator = createSaveIndicator();
+            const colors = {
+                saving: 'rgba(59, 130, 246, 0.95)',
+                success: 'rgba(34, 197, 94, 0.95)',
+                error: 'rgba(239, 68, 68, 0.95)'
+            };
+
+            indicator.style.background = colors[type] || colors.saving;
+            indicator.innerHTML = `
+                ${type === 'saving' ? '<svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>' : ''}
+                ${type === 'success' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                ${type === 'error' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' : ''}
+                <span>${message}</span>
+            `;
+            indicator.style.display = 'flex';
+
+            if (type !== 'saving') {
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function autoSaveContent() {
+            const currentContent = @this.content || '';
+
+            if (currentContent !== lastSavedContent && currentContent.trim().length > 0) {
+                showSaveIndicator('جاري الحفظ التلقائي...', 'saving');
+
+                @this.call('saveChapter')
+                    .then(() => {
+                        lastSavedContent = currentContent;
+                        showSaveIndicator('تم الحفظ تلقائياً', 'success');
+                    })
+                    .catch(error => {
+                        console.error('Auto-save error:', error);
+                        showSaveIndicator('فشل الحفظ التلقائي', 'error');
+                    });
+            }
+        }
+
+        // Listen to content changes
+        document.addEventListener('livewire:initialized', () => {
+            const textarea = document.querySelector('textarea[wire\\:model="content"]');
+
+            if (textarea) {
+                lastSavedContent = textarea.value || '';
+
+                textarea.addEventListener('input', () => {
+                    clearTimeout(autoSaveTimeout);
+
+                    // Auto-save after 3 seconds of inactivity
+                    autoSaveTimeout = setTimeout(() => {
+                        autoSaveContent();
+                    }, 3000);
+                });
+
+                // Also save before leaving the page
+                window.addEventListener('beforeunload', (e) => {
+                    const currentContent = textarea.value || '';
+                    if (currentContent !== lastSavedContent && currentContent.trim().length > 0) {
+                        e.preventDefault();
+                        e.returnValue = 'لديك تغييرات غير محفوظة. هل تريد المغادرة؟';
+                    }
+                });
+            }
+        });
     </script>
 </div>
