@@ -73,8 +73,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-clipboard-document-check')
                     ->group('الروابط السريعة')
                     ->sort(3)
-                    ->badge(fn () => auth()->check() ? auth()->user()->assignedTasks()->whereIn('status', ['pending', 'in_progress'])->count() : 0)
-                    ->badgeColor('warning'),
+                    ->badge(fn () => auth()->check() ? auth()->user()->assignedTasks()->whereIn('status', ['pending', 'in_progress'])->count() : 0),
                 NavigationItem::make('محادثة AI')
                     ->url('/chat')
                     ->icon('heroicon-o-chat-bubble-left-right')
@@ -85,8 +84,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-bell-alert')
                     ->group('الروابط السريعة')
                     ->sort(5)
-                    ->badge(fn () => auth()->check() ? auth()->user()->unreadNotifications()->count() : 0)
-                    ->badgeColor('danger'),
+                    ->badge(fn () => auth()->check() ? auth()->user()->unreadNotifications()->count() : 0),
                 NavigationItem::make('قوالب التصدير')
                     ->url('/export-templates')
                     ->icon('heroicon-o-document-arrow-down')
