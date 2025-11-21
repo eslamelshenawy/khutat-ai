@@ -51,23 +51,23 @@ class BusinessPlanTranslationController extends Controller
             $languageNames = $this->getLanguageNames();
             $languageName = $languageNames[$targetLanguage] ?? $targetLanguage;
 
-            // Translate basic info
+            // Translate basic info (only short texts)
             $translatedData = [
                 'title' => $this->translateTextSimple($businessPlan->title, $targetLanguage),
-                'description' => $this->translateTextSimple($businessPlan->description, $targetLanguage),
-                'company_name' => $businessPlan->company_name, // Keep company name as-is
+                'description' => $businessPlan->description, // Keep original for now
+                'company_name' => $businessPlan->company_name, // Keep original
                 'vision' => $this->translateTextSimple($businessPlan->vision, $targetLanguage),
                 'mission' => $this->translateTextSimple($businessPlan->mission, $targetLanguage),
-                'target_market' => $this->translateTextSimple($businessPlan->target_market, $targetLanguage),
+                'target_market' => $businessPlan->target_market, // Keep original
             ];
 
-            // Translate chapter titles AND content
+            // Translate only chapter titles (not content to save time)
             $translatedChapters = [];
             if ($includeChapters && $businessPlan->chapters->count() > 0) {
                 foreach ($businessPlan->chapters as $chapter) {
                     $translatedChapters[] = [
                         'title' => $this->translateTextSimple($chapter->title, $targetLanguage),
-                        'content' => $this->translateTextSimple($chapter->content, $targetLanguage),
+                        'content' => $chapter->content, // Keep original content
                         'sort_order' => $chapter->sort_order,
                     ];
                 }
@@ -119,7 +119,7 @@ class BusinessPlanTranslationController extends Controller
             'target_language' => 'required|string',
             'translated_data' => 'required|json',
             'translated_chapters' => 'nullable|json',
-            'format' => 'required|string|in:pdf,word,text,excel,powerpoint',
+            'format' => 'required|string|in:pdf,word,text',
         ]);
 
         try {
@@ -134,10 +134,6 @@ class BusinessPlanTranslationController extends Controller
                 return $this->exportAsPdf($content, $translatedData['title']);
             } elseif ($format === 'word') {
                 return $this->exportAsWord($content, $translatedData['title']);
-            } elseif ($format === 'excel') {
-                return $this->exportAsExcel($businessPlan, $translatedData, $translatedChapters);
-            } elseif ($format === 'powerpoint') {
-                return $this->exportAsPowerPoint($businessPlan, $translatedData, $translatedChapters);
             } else {
                 return $this->exportAsText($content, $translatedData['title']);
             }
@@ -264,33 +260,7 @@ class BusinessPlanTranslationController extends Controller
      */
     protected function exportAsPdf($content, $title)
     {
-        // Convert markdown to HTML with proper encoding and direction
-        $html = '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                * { direction: ltr; unicode-bidi: embed; }
-                body {
-                    font-family: DejaVu Sans, sans-serif;
-                    line-height: 1.6;
-                    padding: 20px;
-                    direction: ltr;
-                    text-align: left;
-                }
-                h1 { font-size: 24px; margin-bottom: 10px; direction: ltr; }
-                h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; direction: ltr; }
-                h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; direction: ltr; }
-                p { margin: 10px 0; direction: ltr; }
-            </style>
-        </head>
-        <body>
-            ' . nl2br(htmlspecialchars($content, ENT_QUOTES, 'UTF-8')) . '
-        </body>
-        </html>';
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML("<pre>{$content}</pre>");
         return $pdf->download(Str::slug($title) . '_translated.pdf');
     }
 
@@ -325,201 +295,5 @@ class BusinessPlanTranslationController extends Controller
         return response($content)
             ->header('Content-Type', 'text/plain')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
-    }
-
-    /**
-     * Export as Excel
-     */
-    protected function exportAsExcel($businessPlan, $translatedData, $translatedChapters)
-    {
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Title
-        $sheet->setCellValue('A1', $translatedData['title']);
-        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
-        $sheet->mergeCells('A1:D1');
-
-        $row = 3;
-
-        // Basic Info
-        $sheet->setCellValue('A' . $row, 'Company Name:');
-        $sheet->setCellValue('B' . $row, $translatedData['company_name']);
-        $row++;
-
-        if (!empty($translatedData['description'])) {
-            $sheet->setCellValue('A' . $row, 'Description:');
-            $sheet->setCellValue('B' . $row, $translatedData['description']);
-            $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true);
-            $row++;
-        }
-
-        if (!empty($translatedData['vision'])) {
-            $sheet->setCellValue('A' . $row, 'Vision:');
-            $sheet->setCellValue('B' . $row, $translatedData['vision']);
-            $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true);
-            $row++;
-        }
-
-        if (!empty($translatedData['mission'])) {
-            $sheet->setCellValue('A' . $row, 'Mission:');
-            $sheet->setCellValue('B' . $row, $translatedData['mission']);
-            $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true);
-            $row++;
-        }
-
-        if (!empty($translatedData['target_market'])) {
-            $sheet->setCellValue('A' . $row, 'Target Market:');
-            $sheet->setCellValue('B' . $row, $translatedData['target_market']);
-            $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true);
-            $row++;
-        }
-
-        $row += 2;
-
-        // Chapters
-        if (!empty($translatedChapters)) {
-            $sheet->setCellValue('A' . $row, 'Chapters');
-            $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
-            $row += 2;
-
-            foreach ($translatedChapters as $chapter) {
-                $sheet->setCellValue('A' . $row, $chapter['title']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, $chapter['content']);
-                $sheet->getStyle('A' . $row)->getAlignment()->setWrapText(true);
-                $sheet->mergeCells('A' . $row . ':D' . $row);
-                $row += 2;
-            }
-        }
-
-        // Auto-size columns
-        foreach (range('A', 'D') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        $filename = Str::slug($translatedData['title']) . '_translated.xlsx';
-        $tempFile = storage_path('app/temp/' . $filename);
-
-        if (!file_exists(dirname($tempFile))) {
-            mkdir(dirname($tempFile), 0755, true);
-        }
-
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $writer->save($tempFile);
-
-        return response()->download($tempFile)->deleteFileAfterSend(true);
-    }
-
-    /**
-     * Export as PowerPoint
-     */
-    protected function exportAsPowerPoint($businessPlan, $translatedData, $translatedChapters)
-    {
-        $ppt = new \PhpOffice\PhpPresentation\PhpPresentation();
-
-        // Slide 1: Title
-        $slide1 = $ppt->getActiveSlide();
-        $slide1->createRichTextShape()
-            ->setHeight(100)
-            ->setWidth(800)
-            ->setOffsetX(100)
-            ->setOffsetY(200)
-            ->getActiveParagraph()->createTextRun($translatedData['title'])
-            ->getFont()->setBold(true)->setSize(44);
-
-        $slide1->createRichTextShape()
-            ->setHeight(50)
-            ->setWidth(800)
-            ->setOffsetX(100)
-            ->setOffsetY(350)
-            ->getActiveParagraph()->createTextRun($translatedData['company_name'])
-            ->getFont()->setSize(28);
-
-        // Slide 2: Overview
-        if (!empty($translatedData['description']) || !empty($translatedData['vision']) || !empty($translatedData['mission'])) {
-            $slide2 = $ppt->createSlide();
-            $yOffset = 100;
-
-            $slide2->createRichTextShape()
-                ->setHeight(50)
-                ->setWidth(800)
-                ->setOffsetX(50)
-                ->setOffsetY($yOffset)
-                ->getActiveParagraph()->createTextRun('Overview')
-                ->getFont()->setBold(true)->setSize(32);
-
-            $yOffset += 80;
-
-            if (!empty($translatedData['vision'])) {
-                $shape = $slide2->createRichTextShape()
-                    ->setHeight(100)
-                    ->setWidth(850)
-                    ->setOffsetX(50)
-                    ->setOffsetY($yOffset);
-
-                $shape->getActiveParagraph()->createTextRun('Vision: ')
-                    ->getFont()->setBold(true)->setSize(18);
-                $shape->createParagraph()->createTextRun($translatedData['vision'])
-                    ->getFont()->setSize(16);
-
-                $yOffset += 120;
-            }
-
-            if (!empty($translatedData['mission'])) {
-                $shape = $slide2->createRichTextShape()
-                    ->setHeight(100)
-                    ->setWidth(850)
-                    ->setOffsetX(50)
-                    ->setOffsetY($yOffset);
-
-                $shape->getActiveParagraph()->createTextRun('Mission: ')
-                    ->getFont()->setBold(true)->setSize(18);
-                $shape->createParagraph()->createTextRun($translatedData['mission'])
-                    ->getFont()->setSize(16);
-            }
-        }
-
-        // Slides for Chapters
-        foreach ($translatedChapters as $chapter) {
-            $slide = $ppt->createSlide();
-
-            // Title
-            $slide->createRichTextShape()
-                ->setHeight(60)
-                ->setWidth(850)
-                ->setOffsetX(50)
-                ->setOffsetY(50)
-                ->getActiveParagraph()->createTextRun($chapter['title'])
-                ->getFont()->setBold(true)->setSize(28);
-
-            // Content
-            $contentText = substr($chapter['content'], 0, 500); // Limit text
-            if (strlen($chapter['content']) > 500) {
-                $contentText .= '...';
-            }
-
-            $slide->createRichTextShape()
-                ->setHeight(400)
-                ->setWidth(850)
-                ->setOffsetX(50)
-                ->setOffsetY(130)
-                ->getActiveParagraph()->createTextRun($contentText)
-                ->getFont()->setSize(16);
-        }
-
-        $filename = Str::slug($translatedData['title']) . '_translated.pptx';
-        $tempFile = storage_path('app/temp/' . $filename);
-
-        if (!file_exists(dirname($tempFile))) {
-            mkdir(dirname($tempFile), 0755, true);
-        }
-
-        $writer = \PhpOffice\PhpPresentation\IOFactory::createWriter($ppt, 'PowerPoint2007');
-        $writer->save($tempFile);
-
-        return response()->download($tempFile)->deleteFileAfterSend(true);
     }
 }

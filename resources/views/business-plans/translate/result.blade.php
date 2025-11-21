@@ -44,6 +44,32 @@
                                 تصدير Word
                             </button>
                         </form>
+                        <form action="{{ route('business-plans.translate.export', $businessPlan) }}" method="POST" class="inline">
+                            @csrf
+                            <input type="hidden" name="target_language" value="{{ $targetLanguage }}">
+                            <input type="hidden" name="translated_data" value="{{ json_encode($translatedData) }}">
+                            <input type="hidden" name="translated_chapters" value="{{ json_encode($translatedChapters) }}">
+                            <input type="hidden" name="format" value="excel">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                تصدير Excel
+                            </button>
+                        </form>
+                        <form action="{{ route('business-plans.translate.export', $businessPlan) }}" method="POST" class="inline">
+                            @csrf
+                            <input type="hidden" name="target_language" value="{{ $targetLanguage }}">
+                            <input type="hidden" name="translated_data" value="{{ json_encode($translatedData) }}">
+                            <input type="hidden" name="translated_chapters" value="{{ json_encode($translatedChapters) }}">
+                            <input type="hidden" name="format" value="powerpoint">
+                            <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                                </svg>
+                                تصدير PowerPoint
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
