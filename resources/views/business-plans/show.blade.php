@@ -580,21 +580,26 @@
         </div>
     </div>
 
-    @push('scripts')
     <script>
         // Auto-submit logo form on file select
-        document.getElementById('logoInput')?.addEventListener('change', function() {
-            if (this.files[0]) {
-                document.getElementById('logoForm').submit();
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoInput = document.getElementById('logoInput');
+            if (logoInput) {
+                logoInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        document.getElementById('logoForm').submit();
+                    }
+                });
             }
-        });
 
-        // Auto-submit image form on file select
-        document.getElementById('imageInput')?.addEventListener('change', function() {
-            if (this.files[0]) {
-                document.getElementById('imageForm').submit();
+            const imageInput = document.getElementById('imageInput');
+            if (imageInput) {
+                imageInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        document.getElementById('imageForm').submit();
+                    }
+                });
             }
         });
     </script>
-    @endpush
 </x-layouts.app>
