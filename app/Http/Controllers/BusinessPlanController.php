@@ -156,42 +156,13 @@ class BusinessPlanController extends Controller
         try {
             $businessPlan->load(['chapters', 'template']);
 
-            // Prepare content for analysis
-            $content = "خطة العمل: {$businessPlan->title}\n";
-            $content .= "الشركة: {$businessPlan->company_name}\n";
-            $content .= "نوع المشروع: {$businessPlan->project_type}\n";
-            $content .= "الصناعة: {$businessPlan->industry_type}\n";
-            $content .= "رأس المال المطلوب: {$businessPlan->estimated_budget}\n\n";
-
-            foreach ($businessPlan->chapters as $chapter) {
-                if ($chapter->content) {
-                    $content .= "## {$chapter->title}\n";
-                    $content .= substr($chapter->content, 0, 500) . "...\n\n";
-                }
-            }
-
-            // Generate AI analysis
-            $prompt = "قم بتحليل خطة العمل التالية وقدم تقييماً شاملاً:\n\n{$content}\n\n";
-            $prompt .= "يرجى تقديم:\n";
-            $prompt .= "1. درجة تقييم من 0 إلى 100\n";
-            $prompt .= "2. نقاط القوة (3-5 نقاط)\n";
-            $prompt .= "3. نقاط الضعف (3-5 نقاط)\n";
-            $prompt .= "4. توصيات للتحسين (3-5 توصيات)\n\n";
-            $prompt .= "قدم الرد في صيغة JSON:\n";
-            $prompt .= '{"score": 85, "strengths": ["نقطة 1"], "weaknesses": ["نقطة 1"], "recommendations": ["توصية 1"]}';
-
-            $response = $ollamaService->generateText($prompt, [
-                'max_tokens' => 1500,
-                'temperature' => 0.5,
-            ]);
-
-            // Parse AI response
-            $analysis = $this->parseAnalysisResponse($response);
+            // Use OllamaService's analyzePlanQuality method
+            $analysis = $ollamaService->analyzePlanQuality($businessPlan);
 
             // Update business plan with AI analysis
             $businessPlan->update([
                 'ai_score' => $analysis['score'] ?? null,
-                'ai_feedback' => $this->formatAiFeedback($analysis),
+                'ai_feedback' => $analysis['feedback'] ?? 'تم تحليل الخطة بنجاح',
             ]);
 
             return redirect()->back()->with('success', 'تم تحليل خطة العمل بنجاح');
@@ -202,7 +173,7 @@ class BusinessPlanController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->back()->with('error', 'حدث خطأ أثناء تحليل خطة العمل');
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تحليل خطة العمل: ' . $e->getMessage());
         }
     }
 
