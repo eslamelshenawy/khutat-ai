@@ -316,7 +316,7 @@ class InfographicService
     }
 
     /**
-     * Fix Arabic text for GD (reverse and reshape)
+     * Fix Arabic text for GD (reverse for RTL)
      */
     protected function fixArabicText($text): string
     {
@@ -324,21 +324,31 @@ class InfographicService
             return $text;
         }
 
-        // For Arabic text, we need to reverse it for GD
-        // This is a simple approach - for production use arabic-reshaper library
-        $text = mb_convert_encoding($text, 'HTML-ENTITIES', 'UTF-8');
-        $text = preg_replace('/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i', '$1', $text);
-        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
-
-        // Simple reverse for RTL text
-        if (preg_match('/\p{Arabic}/u', $text)) {
-            // Split by words/spaces to keep numbers in correct order
-            $parts = preg_split('/([\s\d]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-            $reversed = array_reverse($parts);
-            $text = implode('', $reversed);
+        // Check if text contains Arabic
+        if (!preg_match('/\p{Arabic}/u', $text)) {
+            return $text; // Not Arabic, return as-is
         }
 
+        // For RTL languages like Arabic, we need to reverse the string
+        // But preserve Latin characters and numbers in their order
+        $text = $this->reverseArabicText($text);
+
         return $text;
+    }
+
+    /**
+     * Reverse Arabic text while preserving Latin/numbers
+     */
+    protected function reverseArabicText($text): string
+    {
+        // Convert to array of characters
+        $chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+
+        // Reverse the array
+        $reversed = array_reverse($chars);
+
+        // Join back
+        return implode('', $reversed);
     }
 
     /**
