@@ -389,12 +389,11 @@
                             @if($businessPlan->getFirstMedia('logo'))
                                 <img src="{{ $businessPlan->getFirstMedia('logo')->getUrl() }}"
                                      class="mx-auto mb-3 max-h-32 rounded">
-                                <form action="{{ route('business-plans.delete-image', [$businessPlan, $businessPlan->getFirstMedia('logo')->id]) }}"
-                                      method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-sm text-red-600 hover:text-red-800">حذف الشعار</button>
-                                </form>
+                                <button type="button"
+                                        data-delete-url="{{ route('business-plans.delete-image', [$businessPlan, $businessPlan->getFirstMedia('logo')->id]) }}"
+                                        class="delete-image-btn text-sm text-red-600 hover:text-red-800 font-medium">
+                                    حذف الشعار
+                                </button>
                             @else
                                 <form action="{{ route('business-plans.upload-logo', $businessPlan) }}"
                                       method="POST" enctype="multipart/form-data" id="logoForm">
@@ -440,17 +439,13 @@
                         @foreach($businessPlan->getMedia('images') as $image)
                         <div class="relative group">
                             <img src="{{ $image->getUrl() }}" class="w-full h-32 object-cover rounded-lg">
-                            <form action="{{ route('business-plans.delete-image', [$businessPlan, $image->id]) }}"
-                                  method="POST" class="absolute top-2 right-2">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    data-delete-url="{{ route('business-plans.delete-image', [$businessPlan, $image->id]) }}"
+                                    class="delete-image-btn bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition absolute top-2 right-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
                         @endforeach
                     </div>
@@ -700,6 +695,44 @@
                     }
                 });
             }
+
+            // Delete image with AJAX
+            document.querySelectorAll('.delete-image-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const deleteUrl = this.getAttribute('data-delete-url');
+
+                    // Show confirmation dialog
+                    if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+                        return;
+                    }
+
+                    showLoading('جاري حذف الصورة...');
+
+                    fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoading();
+                        if (data.success) {
+                            showNotification(data.message || 'تم حذف الصورة بنجاح!', 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showNotification(data.message || 'فشل حذف الصورة', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        hideLoading();
+                        showNotification('حدث خطأ أثناء حذف الصورة', 'error');
+                        console.error('Delete error:', error);
+                    });
+                });
+            });
         });
     </script>
 </x-layouts.app>
