@@ -106,4 +106,12 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Notification::class);
     }
+
+    /**
+     * Get the comments created by this user
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

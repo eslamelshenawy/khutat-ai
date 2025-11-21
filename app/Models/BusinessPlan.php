@@ -268,6 +268,14 @@ class BusinessPlan extends Model implements HasMedia
     }
 
     /**
+     * Get the comments for this business plan
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->whereNull('parent_id')->with('replies')->latest();
+    }
+
+    /**
      * Register media collections for this model.
      */
     public function registerMediaCollections(): void
