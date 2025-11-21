@@ -52,14 +52,4 @@ class Comment extends Model
     {
         return $this->hasMany(Comment::class, 'parent_id');
     }
-
-    /**
-     * Get the route key for the model.
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        return $this->where($field ?? 'id', $value)
-            ->where('business_plan_id', request()->route('businessPlan')->id ?? null)
-            ->firstOrFail();
-    }
 }

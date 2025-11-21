@@ -33,8 +33,13 @@ class CommentController extends Controller
     /**
      * Update a comment
      */
-    public function update(Request $request, Comment $comment)
+    public function update(Request $request, BusinessPlan $businessPlan, Comment $comment)
     {
+        // Verify comment belongs to the business plan
+        if ($comment->business_plan_id !== $businessPlan->id) {
+            abort(404);
+        }
+
         Gate::authorize('update', $comment);
 
         $validated = $request->validate([
@@ -49,8 +54,13 @@ class CommentController extends Controller
     /**
      * Delete a comment
      */
-    public function destroy(Comment $comment)
+    public function destroy(BusinessPlan $businessPlan, Comment $comment)
     {
+        // Verify comment belongs to the business plan
+        if ($comment->business_plan_id !== $businessPlan->id) {
+            abort(404);
+        }
+
         Gate::authorize('delete', $comment);
 
         $comment->delete();
@@ -61,8 +71,13 @@ class CommentController extends Controller
     /**
      * Mark comment as resolved
      */
-    public function resolve(Comment $comment)
+    public function resolve(BusinessPlan $businessPlan, Comment $comment)
     {
+        // Verify comment belongs to the business plan
+        if ($comment->business_plan_id !== $businessPlan->id) {
+            abort(404);
+        }
+
         Gate::authorize('update', $comment);
 
         $comment->update(['is_resolved' => !$comment->is_resolved]);
