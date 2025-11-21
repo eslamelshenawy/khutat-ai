@@ -47,13 +47,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make('إدارة النظام')
-                    ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(false),
                 NavigationGroup::make('المستخدمين والصلاحيات')
-                    ->icon('heroicon-o-user-group')
                     ->collapsed(false),
                 NavigationGroup::make('الروابط السريعة')
-                    ->icon('heroicon-o-link')
                     ->collapsed(false),
             ])
             ->navigationItems([
