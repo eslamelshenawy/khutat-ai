@@ -76,6 +76,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get the export templates for the user.
+     */
+    public function exportTemplates(): HasMany
+    {
+        return $this->hasMany(ExportTemplate::class);
+    }
+
+    /**
      * Get the chat messages for the user.
      */
     public function chatMessages(): HasMany

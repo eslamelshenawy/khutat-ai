@@ -9,6 +9,7 @@ use App\Http\Controllers\BusinessPlanShareController;
 use App\Http\Controllers\PlanVersionController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\BusinessPlanTranslationController;
+use App\Http\Controllers\ExportTemplateController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -107,6 +108,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{notification}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::delete('/notifications/delete-all-read', [App\Http\Controllers\NotificationController::class, 'deleteAllRead'])->name('notifications.delete-all-read');
+
+    // Export Templates Routes
+    Route::resource('export-templates', ExportTemplateController::class);
+    Route::post('/export-templates/{exportTemplate}/set-default', [ExportTemplateController::class, 'setDefault'])->name('export-templates.set-default');
 });
 
 // Public Share View Routes (outside auth middleware)
