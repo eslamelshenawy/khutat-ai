@@ -121,6 +121,9 @@
                                     <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         الإشعارات
                                     </a>
+                                    <a href="{{ route('export-templates.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        قوالب التصدير
+                                    </a>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="block w-full text-right px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
