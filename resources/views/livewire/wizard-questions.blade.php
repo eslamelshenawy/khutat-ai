@@ -83,31 +83,31 @@
                                 $fieldKey = 'bolt_' . $field['id'];
                             @endphp
 
-                            @if($field['type'] === 'text' || $field['type'] === 'textInput')
+                            @if(in_array($field['type'], ['text', 'textinput']))
                                 <input
                                     type="text"
-                                    wire:model="answers.{{ $fieldKey }}"
+                                    wire:model.live.debounce.500ms="answers.{{ $fieldKey }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="أدخل إجابتك هنا..."
                                 >
 
-                            @elseif($field['type'] === 'textarea' || $field['type'] === 'richEditor')
+                            @elseif(in_array($field['type'], ['textarea', 'richeditor', 'paragraph']))
                                 <textarea
-                                    wire:model="answers.{{ $fieldKey }}"
+                                    wire:model.live.debounce.500ms="answers.{{ $fieldKey }}"
                                     rows="5"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="أدخل إجابتك هنا..."
                                 ></textarea>
 
-                            @elseif($field['type'] === 'number' || $field['type'] === 'numberInput')
+                            @elseif(in_array($field['type'], ['number', 'numberinput']))
                                 <input
                                     type="number"
-                                    wire:model="answers.{{ $fieldKey }}"
+                                    wire:model.live.debounce.500ms="answers.{{ $fieldKey }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="أدخل الرقم..."
                                 >
 
-                            @elseif($field['type'] === 'date' || $field['type'] === 'datePicker')
+                            @elseif(in_array($field['type'], ['date', 'datepicker']))
                                 <input
                                     type="date"
                                     wire:model="answers.{{ $fieldKey }}"

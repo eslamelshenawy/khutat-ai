@@ -118,24 +118,31 @@ class WizardQuestions extends Component
                         $validationRules[] = 'nullable';
                     }
 
-                    // Add type-specific validation for Bolt fields
+                    // Add type-specific validation for Bolt fields (types are lowercase)
                     switch ($field['type']) {
                         case 'text':
-                        case 'textInput':
+                        case 'textinput':
                             $validationRules[] = 'string';
                             $validationRules[] = 'max:500';
                             break;
                         case 'textarea':
-                        case 'richEditor':
+                        case 'richeditor':
+                        case 'paragraph':
                             $validationRules[] = 'string';
                             break;
                         case 'number':
-                        case 'numberInput':
+                        case 'numberinput':
                             $validationRules[] = 'numeric';
                             break;
                         case 'date':
-                        case 'datePicker':
+                        case 'datepicker':
                             $validationRules[] = 'date';
+                            break;
+                        case 'select':
+                        case 'radio':
+                        case 'checkbox':
+                        case 'toggle':
+                            // These can be string or array
                             break;
                     }
 
@@ -248,10 +255,17 @@ class WizardQuestions extends Component
                     'id' => $section->id,
                     'name' => $section->name,
                     'fields' => $section->fields->map(function ($field) {
+                        // Convert Bolt field type class to simple type name
+                        $type = $field->type;
+                        if (str_contains($type, '\\')) {
+                            $type = class_basename($type);
+                        }
+                        $type = strtolower($type);
+
                         return [
                             'id' => $field->id,
                             'name' => $field->name,
-                            'type' => $field->type,
+                            'type' => $type,
                             'options' => $field->options,
                             'is_required' => $field->is_required ?? false,
                             'html_id' => $field->html_id ?? 'bolt_field_' . $field->id,
