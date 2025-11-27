@@ -110,6 +110,7 @@ class WizardQuestions extends Component
             foreach ($this->currentStep['bolt_form_sections'] as $section) {
                 foreach ($section['fields'] as $field) {
                     $fieldKey = 'bolt_' . $field['id'];
+                    $fieldName = $field['name'];
                     $validationRules = [];
 
                     if (!empty($field['is_required'])) {
@@ -129,17 +130,24 @@ class WizardQuestions extends Component
                         case 'richeditor':
                         case 'paragraph':
                             $validationRules[] = 'string';
+                            $validationRules[] = 'max:10000';
                             break;
                         case 'number':
                         case 'numberinput':
                             $validationRules[] = 'numeric';
+                            $validationRules[] = 'min:0';
                             break;
                         case 'date':
                         case 'datepicker':
                             $validationRules[] = 'date';
                             break;
+                        case 'email':
+                            $validationRules[] = 'email';
+                            break;
                         case 'select':
                         case 'radio':
+                            $validationRules[] = 'string';
+                            break;
                         case 'checkbox':
                         case 'toggle':
                             // These can be string or array
@@ -147,7 +155,9 @@ class WizardQuestions extends Component
                     }
 
                     $rules["answers.$fieldKey"] = $validationRules;
-                    $messages["answers.$fieldKey.required"] = "حقل {$field['name']} مطلوب";
+
+                    // Add comprehensive Arabic messages for this field
+                    $this->addArabicMessages($messages, "answers.$fieldKey", $fieldName);
                 }
             }
         }
@@ -156,6 +166,7 @@ class WizardQuestions extends Component
         if ($this->currentStep && isset($this->currentStep['active_questions'])) {
             foreach ($this->currentStep['active_questions'] as $question) {
                 $fieldName = $question['field_name'];
+                $fieldLabel = $question['label'];
                 $validationRules = [];
 
                 if ($question['is_required']) {
@@ -172,16 +183,20 @@ class WizardQuestions extends Component
                         break;
                     case 'textarea':
                         $validationRules[] = 'string';
+                        $validationRules[] = 'max:10000';
                         break;
                     case 'number':
                         $validationRules[] = 'numeric';
+                        $validationRules[] = 'min:0';
                         break;
                     case 'date':
                         $validationRules[] = 'date';
                         break;
+                    case 'email':
+                        $validationRules[] = 'email';
+                        break;
                     case 'checkbox':
                         // Checkbox can be array (multiple options) or single value
-                        // Don't add strict array validation - let it be flexible
                         break;
                 }
 
@@ -192,12 +207,43 @@ class WizardQuestions extends Component
 
                 $rules["answers.$fieldName"] = $validationRules;
 
-                $messages["answers.$fieldName.required"] = "حقل {$question['label']} مطلوب";
+                // Add comprehensive Arabic messages for this field
+                $this->addArabicMessages($messages, "answers.$fieldName", $fieldLabel);
             }
         }
 
         $this->validate($rules, $messages);
         return true;
+    }
+
+    /**
+     * Add comprehensive Arabic validation messages for a field
+     */
+    protected function addArabicMessages(array &$messages, string $fieldKey, string $fieldLabel): void
+    {
+        $messages["$fieldKey.required"] = "حقل {$fieldLabel} مطلوب";
+        $messages["$fieldKey.string"] = "حقل {$fieldLabel} يجب أن يكون نصاً";
+        $messages["$fieldKey.numeric"] = "حقل {$fieldLabel} يجب أن يكون رقماً";
+        $messages["$fieldKey.integer"] = "حقل {$fieldLabel} يجب أن يكون رقماً صحيحاً";
+        $messages["$fieldKey.email"] = "حقل {$fieldLabel} يجب أن يكون بريداً إلكترونياً صحيحاً";
+        $messages["$fieldKey.date"] = "حقل {$fieldLabel} يجب أن يكون تاريخاً صحيحاً";
+        $messages["$fieldKey.url"] = "حقل {$fieldLabel} يجب أن يكون رابطاً صحيحاً";
+        $messages["$fieldKey.min"] = "حقل {$fieldLabel} يجب أن يكون على الأقل :min";
+        $messages["$fieldKey.max"] = "حقل {$fieldLabel} يجب ألا يتجاوز :max حرف";
+        $messages["$fieldKey.min.numeric"] = "حقل {$fieldLabel} يجب أن يكون على الأقل :min";
+        $messages["$fieldKey.max.numeric"] = "حقل {$fieldLabel} يجب ألا يتجاوز :max";
+        $messages["$fieldKey.between"] = "حقل {$fieldLabel} يجب أن يكون بين :min و :max";
+        $messages["$fieldKey.in"] = "القيمة المختارة في حقل {$fieldLabel} غير صحيحة";
+        $messages["$fieldKey.array"] = "حقل {$fieldLabel} يجب أن يكون قائمة";
+        $messages["$fieldKey.boolean"] = "حقل {$fieldLabel} يجب أن يكون نعم أو لا";
+        $messages["$fieldKey.confirmed"] = "تأكيد حقل {$fieldLabel} غير متطابق";
+        $messages["$fieldKey.unique"] = "قيمة حقل {$fieldLabel} مستخدمة مسبقاً";
+        $messages["$fieldKey.exists"] = "قيمة حقل {$fieldLabel} غير موجودة";
+        $messages["$fieldKey.regex"] = "صيغة حقل {$fieldLabel} غير صحيحة";
+        $messages["$fieldKey.after"] = "حقل {$fieldLabel} يجب أن يكون تاريخاً بعد :date";
+        $messages["$fieldKey.before"] = "حقل {$fieldLabel} يجب أن يكون تاريخاً قبل :date";
+        $messages["$fieldKey.digits"] = "حقل {$fieldLabel} يجب أن يتكون من :digits أرقام";
+        $messages["$fieldKey.size"] = "حقل {$fieldLabel} يجب أن يكون بحجم :size";
     }
 
     protected function saveCurrentStep()
