@@ -138,4 +138,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Task::class, 'assigned_by');
     }
+
+    /**
+     * Get the full name attribute name for Bolt forms
+     * Required by LaraZeus Bolt package
+     * This should return the attribute name, not the value
+     */
+    public static function getBoltUserFullNameAttribute(): string
+    {
+        return 'name';
+    }
 }

@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChatMessage;
-use App\Services\OllamaService;
+use App\Services\AI\ChatAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
-    protected OllamaService $ollamaService;
+    protected ChatAIService $chatAIService;
 
-    public function __construct(OllamaService $ollamaService)
+    public function __construct(ChatAIService $chatAIService)
     {
-        $this->ollamaService = $ollamaService;
+        $this->chatAIService = $chatAIService;
     }
 
     public function index()
@@ -26,7 +26,15 @@ class ChatController extends Controller
             ->reverse()
             ->values();
 
-        return view('chat.index', compact('messages'));
+        // Get suggested questions based on last context
+        $lastMessage = $messages->where('is_user', false)->last();
+        $lastContext = $lastMessage->context['type'] ?? 'general';
+        $suggestedQuestions = $this->chatAIService->getSuggestedQuestions($lastContext);
+
+        // Check storage consent
+        $hasStorageConsent = $this->chatAIService->hasStorageConsent(auth()->id());
+
+        return view('chat.index', compact('messages', 'suggestedQuestions', 'hasStorageConsent'));
     }
 
     public function send(Request $request)
@@ -39,44 +47,65 @@ class ChatController extends Controller
         $userMessage = $request->input('message');
         $context = $request->input('context', 'general');
 
-        // Get the latest business plan or create a general chat plan
-        $businessPlan = auth()->user()->businessPlans()->latest()->first();
-        if (!$businessPlan) {
-            // Create a general chat business plan if none exists
-            $businessPlan = auth()->user()->businessPlans()->create([
-                'title' => 'محادثات عامة',
-                'company_name' => 'محادثة مع AI',
-                'project_type' => 'general',
-                'industry_type' => 'general',
-                'status' => 'draft',
-            ]);
-        }
-
-        // Save user message
-        $userChatMessage = auth()->user()->chatMessages()->create([
-            'business_plan_id' => $businessPlan->id,
-            'message' => $userMessage,
-            'is_user' => true,
-            'context' => ['type' => $context],
-        ]);
+        // Track active sessions for scalability monitoring
+        $this->chatAIService->incrementActiveSessions();
 
         try {
-            // Generate AI response
-            $aiResponse = $this->generateAIResponse($userMessage, $context);
+            // Process message with ChatAIService (handles performance, fallback, caching)
+            $result = $this->chatAIService->processMessage($userMessage, $context);
+            $aiResponse = $result['response'];
 
-            // Save AI response
-            $aiChatMessage = auth()->user()->chatMessages()->create([
-                'business_plan_id' => $businessPlan->id,
-                'message' => $aiResponse,
-                'is_user' => false,
-                'context' => ['type' => $context, 'parent_message_id' => $userChatMessage->id],
-                'ai_model' => 'ollama',
-            ]);
+            // Only save messages if user has given consent (Security requirement)
+            $hasConsent = $this->chatAIService->hasStorageConsent(auth()->id());
+
+            if ($hasConsent) {
+                // Get the latest business plan or create a general chat plan
+                $businessPlan = auth()->user()->businessPlans()->latest()->first();
+                if (!$businessPlan) {
+                    $businessPlan = auth()->user()->businessPlans()->create([
+                        'title' => 'محادثات عامة',
+                        'company_name' => 'محادثة مع AI',
+                        'project_type' => 'general',
+                        'industry_type' => 'general',
+                        'status' => 'draft',
+                    ]);
+                }
+
+                // Save user message
+                $userChatMessage = auth()->user()->chatMessages()->create([
+                    'business_plan_id' => $businessPlan->id,
+                    'message' => $userMessage,
+                    'is_user' => true,
+                    'context' => ['type' => $context],
+                ]);
+
+                // Save AI response
+                $aiChatMessage = auth()->user()->chatMessages()->create([
+                    'business_plan_id' => $businessPlan->id,
+                    'message' => $aiResponse,
+                    'is_user' => false,
+                    'context' => [
+                        'type' => $context,
+                        'parent_message_id' => $userChatMessage->id,
+                        'cached' => $result['cached'] ?? false,
+                        'fallback' => $result['fallback'] ?? false,
+                        'processing_time_ms' => $result['processing_time'],
+                    ],
+                    'ai_model' => 'ollama',
+                ]);
+            } else {
+                // Create temporary message objects for response only
+                $userChatMessage = (object)['message' => $userMessage, 'created_at' => now()];
+                $aiChatMessage = (object)['message' => $aiResponse, 'created_at' => now()];
+            }
 
             return response()->json([
                 'success' => true,
                 'user_message' => $userChatMessage,
                 'ai_message' => $aiChatMessage,
+                'processing_time' => $result['processing_time'],
+                'cached' => $result['cached'] ?? false,
+                'storage_disabled' => !$hasConsent,
             ]);
 
         } catch (\Exception $e) {
@@ -89,6 +118,9 @@ class ChatController extends Controller
                 'success' => false,
                 'error' => 'عذراً، حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.',
             ], 500);
+        } finally {
+            // Decrement active sessions
+            $this->chatAIService->decrementActiveSessions();
         }
     }
 
@@ -103,29 +135,39 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    protected function generateAIResponse(string $userMessage, string $context): string
+    /**
+     * Set user's storage consent
+     */
+    public function setStorageConsent(Request $request)
     {
-        $systemPrompt = $this->getSystemPrompt($context);
+        $request->validate([
+            'consent' => 'required|boolean',
+        ]);
 
-        $prompt = "{$systemPrompt}\n\nالمستخدم: {$userMessage}";
+        $this->chatAIService->setStorageConsent(
+            auth()->id(),
+            $request->boolean('consent')
+        );
 
-        // Use Ollama service to generate response
-        try {
-            $response = $this->ollamaService->chatWithAI($prompt);
-            return $response ?: 'عذراً، لم أتمكن من توليد رد مناسب. يرجى المحاولة مرة أخرى.';
-        } catch (\Exception $e) {
-            \Log::error('Chat AI generation failed', ['error' => $e->getMessage()]);
-            return 'عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى لاحقاً.';
-        }
+        return response()->json([
+            'success' => true,
+            'message' => $request->boolean('consent')
+                ? 'تم حفظ موافقتك على تخزين المحادثات'
+                : 'تم إلغاء تخزين المحادثات',
+        ]);
     }
 
-    protected function getSystemPrompt(string $context): string
+    /**
+     * Get suggested questions
+     */
+    public function suggestedQuestions(Request $request)
     {
-        return match($context) {
-            'business_plan' => 'أنت مساعد ذكاء اصطناعي متخصص في إنشاء وتحليل خطط العمل. مهمتك مساعدة المستخدمين في كتابة خطط عمل احترافية وتقديم النصائح والتوجيهات.',
-            'financial' => 'أنت مساعد ذكاء اصطناعي متخصص في التحليل المالي والتخطيط المالي للمشاريع. قدم نصائح مالية دقيقة ومفيدة.',
-            'marketing' => 'أنت مساعد ذكاء اصطناعي متخصص في التسويق واستراتيجيات الأعمال. ساعد المستخدم في تطوير استراتيجيات تسويقية فعالة.',
-            default => 'أنت مساعد ذكاء اصطناعي مفيد ومحترف. ساعد المستخدم بأفضل ما لديك من معلومات ونصائح.',
-        };
+        $context = $request->input('context', 'general');
+        $questions = $this->chatAIService->getSuggestedQuestions($context);
+
+        return response()->json([
+            'success' => true,
+            'questions' => $questions,
+        ]);
     }
 }

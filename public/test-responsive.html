@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار Responsive Design - معالج خطط الأعمال</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .context-btn {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .context-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Test -->
+    <nav class="bg-white shadow-sm border-b border-gray-200" x-data="{ mobileMenuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <svg class="h-7 w-7 sm:h-8 sm:w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span class="mr-2 sm:mr-3 text-base sm:text-xl font-bold text-gray-900 hidden sm:inline">معالج خطط الأعمال</span>
+                        <span class="mr-2 text-sm font-bold text-gray-900 sm:hidden">خطط الأعمال</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation (hidden on mobile) -->
+                <div class="hidden lg:flex items-center space-x-reverse space-x-4">
+                    <a href="#" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">الرئيسية</a>
+                    <a href="#" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">خططي</a>
+                    <a href="#" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">مهامي</a>
+                    <a href="#" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">محادثة AI</a>
+                    <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium">خطة جديدة</a>
+                </div>
+
+                <!-- Mobile Menu Button & Quick Actions -->
+                <div class="flex items-center lg:hidden space-x-reverse space-x-2">
+                    <!-- Mobile New Plan Button -->
+                    <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-md text-xs sm:text-sm font-medium">
+                        خطة جديدة
+                    </a>
+
+                    <!-- Mobile Notifications -->
+                    <button class="relative text-gray-700 hover:text-gray-900 p-2">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-[10px] sm:text-xs">3</span>
+                    </button>
+
+                    <!-- Hamburger Button -->
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700 hover:text-gray-900 p-2">
+                        <svg x-show="!mobileMenuOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <svg x-show="mobileMenuOpen" x-cloak class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" x-cloak class="lg:hidden border-t border-gray-200 bg-white">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">الرئيسية</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">خططي</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">مهامي</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">محادثة AI</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">الإشعارات</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">قوالب التصدير</a>
+
+                <!-- User Info & Logout -->
+                <div class="border-t border-gray-200 pt-3 mt-3">
+                    <div class="px-3 py-2 text-sm text-gray-500">
+                        المستخدم: <span class="font-medium text-gray-900">محمد أحمد</span>
+                    </div>
+                    <button class="block w-full text-right text-red-600 hover:bg-red-50 px-3 py-2 rounded-md text-base font-medium">
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Chat Test -->
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <!-- Page Header -->
+        <div class="mb-4 sm:mb-6">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">المحادثة مع الذكاء الاصطناعي</h1>
+            <p class="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">احصل على مساعدة فورية في خطط العمل والتسويق والتحليل المالي</p>
+        </div>
+
+        <!-- Context Selector -->
+        <div class="mb-3 sm:mb-4 flex gap-1.5 sm:gap-2 flex-wrap">
+            <button type="button" class="context-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition active text-xs sm:text-sm">
+                💬 عام
+            </button>
+            <button type="button" class="context-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm">
+                📊 خطة العمل
+            </button>
+            <button type="button" class="context-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm">
+                💰 تحليل مالي
+            </button>
+            <button type="button" class="context-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm">
+                📢 تسويق
+            </button>
+        </div>
+
+        <!-- Suggested Questions -->
+        <div class="mb-3 sm:mb-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3 sm:p-4">
+            <h3 class="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">💡 أسئلة مقترحة:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-2">
+                <button class="text-right px-3 sm:px-4 py-2 bg-white text-xs sm:text-sm text-gray-700 rounded-lg hover:bg-blue-100 transition border border-gray-200">
+                    كيف أبدأ مشروعي الناشئ؟
+                </button>
+                <button class="text-right px-3 sm:px-4 py-2 bg-white text-xs sm:text-sm text-gray-700 rounded-lg hover:bg-blue-100 transition border border-gray-200">
+                    ما المصادر التمويلية المتاحة؟
+                </button>
+                <button class="text-right px-3 sm:px-4 py-2 bg-white text-xs sm:text-sm text-gray-700 rounded-lg hover:bg-blue-100 transition border border-gray-200">
+                    كيف أدير فريق العمل؟
+                </button>
+                <button class="text-right px-3 sm:px-4 py-2 bg-white text-xs sm:text-sm text-gray-700 rounded-lg hover:bg-blue-100 transition border border-gray-200">
+                    كيف أتعامل مع المنافسة؟
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="bg-white rounded-lg shadow mb-3 sm:mb-4 p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
+            <!-- User Message Example -->
+            <div class="message">
+                <div class="flex items-start gap-2 sm:gap-3 flex-row-reverse">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1 max-w-full sm:max-w-[85%]">
+                        <div class="bg-blue-600 text-white rounded-lg p-2.5 sm:p-3 md:p-4">
+                            <p class="text-xs sm:text-sm whitespace-pre-wrap break-words">كيف أبدأ مشروعي الناشئ؟</p>
+                        </div>
+                        <div class="text-[10px] sm:text-xs text-gray-500 mt-1 text-left">
+                            منذ دقيقة
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Message Example -->
+            <div class="message">
+                <div class="flex items-start gap-2 sm:gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1 max-w-full sm:max-w-[85%]">
+                        <div class="bg-gray-100 text-gray-900 rounded-lg p-2.5 sm:p-3 md:p-4">
+                            <p class="text-xs sm:text-sm whitespace-pre-wrap break-words">مرحباً! لبدء مشروعك الناشئ، هناك عدة خطوات مهمة: أولاً، حدد فكرتك بوضوح وتأكد من أنها تحل مشكلة حقيقية. ثانياً، قم بدراسة السوق والمنافسين. ثالثاً، ضع خطة عمل واضحة تتضمن استراتيجيتك المالية والتسويقية. رابعاً، ابحث عن مصادر التمويل المناسبة. هل تريد تفاصيل أكثر عن أي من هذه الخطوات؟</p>
+                        </div>
+                        <div class="text-[10px] sm:text-xs text-gray-500 mt-1 text-right">
+                            الآن • ✅ 1.2s • 💾 من الذاكرة
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="bg-white rounded-lg shadow p-2.5 sm:p-3 md:p-4">
+            <form class="flex gap-2 sm:gap-3">
+                <input
+                    type="text"
+                    placeholder="اكتب رسالتك هنا..."
+                    class="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                <button
+                    type="submit"
+                    class="px-3 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-1 sm:gap-2"
+                >
+                    <span class="hidden sm:inline">إرسال</span>
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Test Instructions -->
+    <div class="fixed bottom-4 right-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded shadow-lg max-w-sm">
+        <h3 class="font-bold text-sm mb-2">🧪 تعليمات الاختبار:</h3>
+        <ul class="text-xs space-y-1">
+            <li>✅ اضغط F12 لفتح DevTools</li>
+            <li>✅ اختر Toggle Device Toolbar</li>
+            <li>✅ جرب: iPhone SE, iPhone 12, iPad</li>
+            <li>✅ اختبر زر ☰ Hamburger على الموبايل</li>
+            <li>✅ تأكد من قراءة جميع النصوص</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -12,13 +12,21 @@ class BusinessPlan extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'business_plans';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
         'template_id',
-        'bolt_form_id',
-        'bolt_response_id',
         'title',
         'slug',
         'description',
@@ -43,11 +51,14 @@ class BusinessPlan extends Model implements HasMedia
         'wizard_completed',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'user_id' => 'integer',
         'template_id' => 'integer',
-        'bolt_form_id' => 'integer',
-        'bolt_response_id' => 'integer',
         'parent_plan_id' => 'integer',
         'completion_percentage' => 'integer',
         'ai_score' => 'integer',
@@ -63,61 +74,101 @@ class BusinessPlan extends Model implements HasMedia
         'deleted_at' => 'datetime',
     ];
 
+    /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array
+     */
     protected $appends = [
         'is_completed',
         'is_published',
     ];
 
+    /**
+     * Get the user that owns the business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the template associated with the business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function template()
     {
         return $this->belongsTo(Template::class);
     }
 
-    public function boltForm()
-    {
-        return $this->belongsTo(\LaraZeus\Bolt\Models\Form::class, 'bolt_form_id');
-    }
-
-    public function boltResponse()
-    {
-        return $this->belongsTo(\LaraZeus\Bolt\Models\Response::class, 'bolt_response_id');
-    }
-
+    /**
+     * Get the parent plan (for versioning).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function parentPlan()
     {
         return $this->belongsTo(BusinessPlan::class, 'parent_plan_id');
     }
 
+    /**
+     * Get child versions of this plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function childVersions()
     {
         return $this->hasMany(BusinessPlan::class, 'parent_plan_id');
     }
 
+    /**
+     * Get the chapters for the business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function chapters()
     {
         return $this->hasMany(Chapter::class)->orderBy('sort_order');
     }
 
+    /**
+     * Get the business plan data.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function planData()
     {
         return $this->hasMany(BusinessPlanData::class);
     }
 
+    /**
+     * Get the AI generations for this plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function aiGenerations()
     {
         return $this->hasMany(AiGeneration::class);
     }
 
+    /**
+     * Get the shares for this business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function shares()
     {
         return $this->hasMany(BusinessPlanShare::class);
     }
 
+    /**
+     * Get active shares for this business plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function activeShares()
     {
         return $this->shares()->where('is_active', true)->where(function ($query) {
@@ -125,67 +176,128 @@ class BusinessPlan extends Model implements HasMedia
         });
     }
 
+    /**
+     * Get the chat messages for this plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function chatMessages()
     {
         return $this->hasMany(ChatMessage::class);
     }
 
+    /**
+     * Get the financial simulations for this plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function financialSimulations()
     {
         return $this->hasMany(FinancialSimulation::class);
     }
 
+    /**
+     * Get the plan versions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function planVersions()
     {
         return $this->hasMany(PlanVersion::class);
     }
 
+    /**
+     * Get the AI recommendations for this plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function aiRecommendations()
     {
         return $this->hasMany(AiRecommendation::class);
     }
 
+    /**
+     * Check if the plan is completed.
+     *
+     * @return bool
+     */
     public function getIsCompletedAttribute()
     {
         return $this->status === 'completed' || $this->completion_percentage >= 100;
     }
 
+    /**
+     * Check if the plan is published.
+     *
+     * @return bool
+     */
     public function getIsPublishedAttribute()
     {
         return $this->published_at !== null && $this->published_at->isPast();
     }
 
+    /**
+     * Scope a query to only include plans by status.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $status
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeByStatus($query, $status)
     {
         return $query->where('status', $status);
     }
 
+    /**
+     * Scope a query to only include published plans.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopePublished($query)
     {
         return $query->whereNotNull('published_at')
             ->where('published_at', '<=', now());
     }
 
+    /**
+     * Scope a query to only include public plans.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopePublic($query)
     {
         return $query->where('is_public', true);
     }
 
+    /**
+     * Get the comments for this business plan
+     */
     public function comments()
     {
         return $this->hasMany(Comment::class)->whereNull('parent_id')->with('replies')->latest();
     }
 
+    /**
+     * Get the financial data for this business plan
+     */
     public function financialData()
     {
         return $this->hasMany(FinancialData::class)->orderBy('year');
     }
 
+    /**
+     * Get the tasks for this business plan
+     */
     public function tasks()
     {
         return $this->hasMany(Task::class)->latest();
     }
 
+    /**
+     * Register media collections for this model.
+     */
     public function registerMediaCollections(): void
     {
         $this

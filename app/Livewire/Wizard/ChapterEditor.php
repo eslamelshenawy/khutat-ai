@@ -60,17 +60,36 @@ class ChapterEditor extends Component
 
         try {
             // Get wizard data for context
-            $wizardData = $this->businessPlan->businessPlanData->pluck('field_value', 'field_key')->toArray();
+            // Try new wizard_data field first, fallback to old businessPlanData
+            if (!empty($this->businessPlan->wizard_data)) {
+                $wizardData = $this->businessPlan->wizard_data;
+            } elseif ($this->businessPlan->businessPlanData) {
+                $wizardData = $this->businessPlan->businessPlanData->pluck('field_value', 'field_key')->toArray();
+            } else {
+                $wizardData = [];
+            }
 
             // Generate content
             $generatedContent = $this->ollamaService->generateChapterContent($this->currentChapter, $wizardData);
 
-            $this->content = $generatedContent;
+            // Update chapter in database
             $this->currentChapter->update([
                 'content' => $generatedContent,
                 'is_ai_generated' => true,
                 'word_count' => str_word_count(strip_tags($generatedContent)),
             ]);
+
+            // Refresh the chapter model to get the saved content
+            $this->currentChapter->refresh();
+
+            // Update local content property from the refreshed chapter
+            $this->content = $this->currentChapter->content;
+
+            // Force Livewire to update the component by resetting the property
+            $this->reset('chatInput');
+
+            // Dispatch browser event to update textarea
+            $this->dispatch('content-updated', content: $this->content);
 
             $this->dispatch('notify', ['message' => 'تم إنشاء المحتوى بالذكاء الاصطناعي', 'type' => 'success']);
         } catch (\Exception $e) {
@@ -82,6 +101,12 @@ class ChapterEditor extends Component
 
     public function improveContent()
     {
+        // Check if content is not empty
+        if (empty($this->content)) {
+            $this->dispatch('notify', ['message' => 'لا يوجد محتوى لتحسينه', 'type' => 'warning']);
+            return;
+        }
+
         $this->aiGenerating = true;
 
         try {

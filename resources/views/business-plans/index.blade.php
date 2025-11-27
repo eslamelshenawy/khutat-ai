@@ -1,71 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>خطط الأعمال - معالج خطط الأعمال</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- خط تجوال العربي -->
-    <link href="https://fonts.bunny.net/css?family=tajawal:400,500,700&display=swap" rel="stylesheet" />
-
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-    </style>
-
-    @livewireStyles
-</head>
-<body class="antialiased bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="flex items-center">
-                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <span class="mr-3 text-xl font-bold text-gray-900">معالج خطط الأعمال</span>
-                    </a>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    @auth
-                        <a href="{{ route('business-plans.index') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            خططي
-                        </a>
-                        <a href="{{ route('wizard.start') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            إنشاء خطة جديدة
-                        </a>
-                        <a href="{{ url('/admin') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            لوحة التحكم
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">
-                                تسجيل الخروج
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            تسجيل الدخول
-                        </a>
-                        <a href="{{ route('register') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium">
-                            إنشاء حساب
-                        </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+<x-layouts.app>
+    <x-slot name="title">خطط الأعمال</x-slot>
 
     <!-- Main Content -->
-    <main class="min-h-screen bg-gray-50 py-8">
+    <div class="min-h-screen bg-gray-50 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="flex justify-between items-center mb-8">
@@ -196,18 +133,5 @@
                 </div>
             @endif
         </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center text-gray-600">
-                <p>&copy; {{ date('Y') }} معالج خطط الأعمال. جميع الحقوق محفوظة.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    @livewireScripts
-</body>
-</html>
+    </div>
+</x-layouts.app>

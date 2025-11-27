@@ -21,13 +21,11 @@ Route::get('/test-css', function () {
 });
 
 // Auth Routes
-Route::get('/login', function () {
-    return redirect('/admin/login');
-})->name('login');
+Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 
-Route::get('/register', function () {
-    return redirect('/admin/register');
-})->name('register');
+Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
 
 Route::post('/logout', function () {
     auth()->logout();
@@ -44,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Wizard Routes
     Route::get('/wizard/start', WizardStart::class)->name('wizard.start');
+    Route::get('/wizard/{businessPlan}/questions', App\Livewire\WizardQuestions::class)->name('wizard.questions');
     Route::get('/wizard/{businessPlan}/steps', WizardSteps::class)->name('wizard.steps');
     Route::get('/wizard/{businessPlan}/chapters', ChapterEditor::class)->name('chapters.edit');
 
@@ -121,6 +120,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [App\Http\Controllers\ChatController::class, 'send'])->name('chat.send');
     Route::get('/chat/history', [App\Http\Controllers\ChatController::class, 'history'])->name('chat.history');
+    Route::post('/chat/storage-consent', [App\Http\Controllers\ChatController::class, 'setStorageConsent'])->name('chat.storage-consent');
+    Route::get('/chat/suggested-questions', [App\Http\Controllers\ChatController::class, 'suggestedQuestions'])->name('chat.suggested-questions');
 
     // Notification Routes
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');

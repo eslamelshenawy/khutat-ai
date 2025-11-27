@@ -100,8 +100,8 @@ class WizardStart extends Component
             }
         }
 
-        // Redirect to wizard steps
-        return redirect()->route('wizard.steps', ['businessPlan' => $plan->id]);
+        // Redirect to wizard questions
+        return redirect()->route('wizard.questions', ['businessPlan' => $plan->id]);
     }
 
     protected function getChapterTitle($chapterType)

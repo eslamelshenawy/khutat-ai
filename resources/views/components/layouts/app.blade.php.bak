@@ -72,9 +72,6 @@
                         <a href="{{ route('chat.index') }}" class="{{ request()->routeIs('chat*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:text-gray-900' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             محادثة AI
                         </a>
-                        <a href="/bolt" class="{{ request()->is('bolt*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:text-gray-900' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            نماذج الأعمال
-                        </a>
                         <a href="{{ route('wizard.start') }}" class="{{ request()->routeIs('wizard*') || request()->routeIs('chapters*') ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
                             خطة جديدة
                         </a>
@@ -210,9 +207,6 @@
                     </a>
                     <a href="{{ route('tasks.my-tasks') }}" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
                         مهامي
-                    </a>
-                    <a href="/bolt" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
-                        نماذج الأعمال
                     </a>
                     <a href="{{ route('chat.index') }}" class="block text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
                         محادثة AI

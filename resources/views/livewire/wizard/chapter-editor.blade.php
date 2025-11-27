@@ -203,10 +203,11 @@
             <!-- Content Editor -->
             <div class="flex-1 overflow-y-auto p-8 bg-gray-50">
                 @if($currentChapter)
-                    <div class="max-w-5xl mx-auto">
+                    <div class="max-w-5xl mx-auto" wire:key="chapter-{{ $currentChapter->id }}">
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                             <textarea
-                                wire:model="content"
+                                wire:model.live="content"
+                                wire:key="content-{{ $currentChapter->id }}"
                                 rows="24"
                                 class="w-full px-6 py-5 border-0 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0 font-['Tajawal'] text-base leading-relaxed resize-none"
                                 style="min-height: calc(100vh - 400px);"
@@ -569,6 +570,17 @@
                     }
                 });
             }
+
+            // Listen for content-updated event from Livewire
+            Livewire.on('content-updated', (event) => {
+                const textarea = document.querySelector('textarea[wire\\:model\\.live="content"]');
+                if (textarea && event.content) {
+                    textarea.value = event.content;
+                    // Trigger Livewire to sync the value
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    lastSavedContent = event.content;
+                }
+            });
         });
     </script>
 </div>
