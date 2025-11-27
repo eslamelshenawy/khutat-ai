@@ -42,6 +42,10 @@ class ChatController extends Controller
         $request->validate([
             'message' => 'required|string|max:2000',
             'context' => 'nullable|string',
+        ], [
+            'message.required' => 'الرسالة مطلوبة',
+            'message.string' => 'الرسالة يجب أن تكون نصاً',
+            'message.max' => 'الرسالة يجب ألا تتجاوز 2000 حرف',
         ]);
 
         $userMessage = $request->input('message');

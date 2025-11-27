@@ -44,6 +44,9 @@ class ChapterEditor extends Component
     {
         $this->validate([
             'content' => 'required|min:10',
+        ], [
+            'content.required' => 'محتوى الفصل مطلوب',
+            'content.min' => 'محتوى الفصل يجب أن يكون 10 أحرف على الأقل',
         ]);
 
         $this->currentChapter->update([

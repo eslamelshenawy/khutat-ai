@@ -341,6 +341,11 @@ class BusinessPlanController extends Controller
 
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
+        ], [
+            'image.required' => 'الصورة مطلوبة',
+            'image.image' => 'الملف يجب أن يكون صورة',
+            'image.mimes' => 'الصورة يجب أن تكون من نوع: jpeg, png, jpg, gif, webp',
+            'image.max' => 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت',
         ]);
 
         try {
@@ -369,6 +374,11 @@ class BusinessPlanController extends Controller
 
         $request->validate([
             'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ], [
+            'logo.required' => 'الشعار مطلوب',
+            'logo.image' => 'الملف يجب أن يكون صورة',
+            'logo.mimes' => 'الشعار يجب أن يكون من نوع: jpeg, png, jpg, gif, webp',
+            'logo.max' => 'حجم الشعار يجب ألا يتجاوز 5 ميجابايت',
         ]);
 
         try {

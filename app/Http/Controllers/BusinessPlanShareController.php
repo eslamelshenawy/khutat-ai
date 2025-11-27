@@ -28,6 +28,16 @@ class BusinessPlanShareController extends Controller
             'password' => 'required_if:type,private|nullable|min:6',
             'permission' => 'required|in:view,comment,edit',
             'expires_in_days' => 'nullable|integer|min:1|max:365',
+        ], [
+            'type.required' => 'نوع المشاركة مطلوب',
+            'type.in' => 'نوع المشاركة غير صحيح',
+            'password.required_if' => 'كلمة المرور مطلوبة للمشاركة الخاصة',
+            'password.min' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+            'permission.required' => 'صلاحية المشاركة مطلوبة',
+            'permission.in' => 'صلاحية المشاركة غير صحيحة',
+            'expires_in_days.integer' => 'مدة الصلاحية يجب أن تكون رقماً',
+            'expires_in_days.min' => 'مدة الصلاحية يجب أن تكون يوم على الأقل',
+            'expires_in_days.max' => 'مدة الصلاحية يجب ألا تتجاوز 365 يوم',
         ]);
 
         $share = $businessPlan->shares()->create([
@@ -86,6 +96,8 @@ class BusinessPlanShareController extends Controller
 
         $request->validate([
             'password' => 'required',
+        ], [
+            'password.required' => 'كلمة المرور مطلوبة',
         ]);
 
         if (Hash::check($request->password, $share->password)) {
@@ -139,6 +151,9 @@ class BusinessPlanShareController extends Controller
         $validated = $request->validate([
             'emails_text' => 'required|string',
             'message' => 'nullable|string|max:500',
+        ], [
+            'emails_text.required' => 'البريد الإلكتروني مطلوب',
+            'message.max' => 'الرسالة يجب ألا تتجاوز 500 حرف',
         ]);
 
         // Convert comma-separated emails to array and validate each
