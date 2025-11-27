@@ -51,7 +51,7 @@ class WizardSteps extends Component
     {
         // Save current chapter before switching if it has content
         if ($this->currentChapterId && isset($this->currentChapter['content'])) {
-            $currentChap = $this->plan->chapters()->find($this->currentChapterId);
+            $currentChap = $this->chapters->firstWhere('id', $this->currentChapterId);
             if ($currentChap) {
                 $currentChap->update([
                     'content' => $this->currentChapter['content'] ?? '',
@@ -60,8 +60,8 @@ class WizardSteps extends Component
             }
         }
 
-        // Load new chapter
-        $chapter = $this->plan->chapters()->find($chapterId);
+        // Load new chapter from already loaded collection
+        $chapter = $this->chapters->firstWhere('id', $chapterId);
 
         if ($chapter) {
             $this->currentChapterId = $chapterId;
@@ -84,7 +84,7 @@ class WizardSteps extends Component
             'currentChapter.content' => 'nullable|string',
         ]);
 
-        $chapter = $this->plan->chapters()->find($this->currentChapterId);
+        $chapter = $this->chapters->firstWhere('id', $this->currentChapterId);
 
         if ($chapter) {
             $chapter->update([
@@ -106,17 +106,17 @@ class WizardSteps extends Component
                 ]);
             }
 
-            // Reload chapters
+            // Reload chapters (necessary after update)
             $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
 
-            // Update current chapter as array
-            $chapter = $chapter->fresh();
+            // Update current chapter from reloaded collection
+            $updatedChapter = $this->chapters->firstWhere('id', $this->currentChapterId);
             $this->currentChapter = [
-                'id' => $chapter->id,
-                'title' => $chapter->title,
-                'content' => $chapter->content,
-                'status' => $chapter->status,
-                'is_ai_generated' => $chapter->is_ai_generated,
+                'id' => $updatedChapter->id,
+                'title' => $updatedChapter->title,
+                'content' => $updatedChapter->content,
+                'status' => $updatedChapter->status,
+                'is_ai_generated' => $updatedChapter->is_ai_generated,
                 'description' => null,
             ];
 
@@ -140,7 +140,7 @@ class WizardSteps extends Component
 
         try {
             $ollama = new OllamaService();
-            $chapter = $this->plan->chapters()->find($this->currentChapterId);
+            $chapter = $this->chapters->firstWhere('id', $this->currentChapterId);
 
             if ($chapter) {
                 // Get additional context from business plan
@@ -157,22 +157,22 @@ class WizardSteps extends Component
                     'is_ai_generated' => true,
                 ]);
 
-                // Reload chapter and update current chapter as array
-                $chapter = $chapter->fresh();
+                // Reload chapters after AI generation
+                $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
 
                 // Reset to force Livewire to detect the change
                 $this->reset('currentChapter');
 
+                // Get updated chapter from collection
+                $updatedChapter = $this->chapters->firstWhere('id', $this->currentChapterId);
                 $this->currentChapter = [
-                    'id' => $chapter->id,
-                    'title' => $chapter->title,
-                    'content' => $chapter->content,
-                    'status' => $chapter->status,
-                    'is_ai_generated' => $chapter->is_ai_generated,
-                    'description' => null, // Chapter model doesn't have description field
+                    'id' => $updatedChapter->id,
+                    'title' => $updatedChapter->title,
+                    'content' => $updatedChapter->content,
+                    'status' => $updatedChapter->status,
+                    'is_ai_generated' => $updatedChapter->is_ai_generated,
+                    'description' => null,
                 ];
-
-                $this->chapters = $this->plan->chapters()->orderBy('sort_order')->get();
 
                 // Force textarea re-render by changing key
                 $this->refreshKey++;
@@ -244,10 +244,10 @@ class WizardSteps extends Component
 
     protected function updateCompletionPercentage()
     {
-        $totalChapters = $this->plan->chapters()->count();
+        $totalChapters = $this->chapters->count();
 
         if ($totalChapters > 0) {
-            $completedChapters = $this->plan->chapters()
+            $completedChapters = $this->chapters
                 ->whereIn('status', ['draft', 'ai_generated', 'completed'])
                 ->where('content', '!=', '')
                 ->whereNotNull('content')
@@ -258,8 +258,6 @@ class WizardSteps extends Component
             $this->plan->update([
                 'completion_percentage' => $percentage,
             ]);
-
-            $this->plan->refresh();
         }
     }
 
