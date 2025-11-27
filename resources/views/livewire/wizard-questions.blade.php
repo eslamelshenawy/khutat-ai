@@ -1,9 +1,21 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8"
+     x-data="{
+         autoSaveTime: null,
+         init() {
+             setInterval(() => { @this.call('autoSave') }, 15000);
+         }
+     }"
+     @auto-saved.window="autoSaveTime = $event.detail.time">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Progress Bar -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-2">
-                <h2 class="text-sm font-medium text-gray-700">خطوة {{ $currentStepIndex + 1 }} من {{ count($steps) }}</h2>
+                <div class="flex items-center gap-3">
+                    <h2 class="text-sm font-medium text-gray-700">خطوة {{ $currentStepIndex + 1 }} من {{ count($steps) }}</h2>
+                    <span x-show="autoSaveTime" x-cloak class="text-xs text-green-600">
+                        ✓ حفظ تلقائي <span x-text="autoSaveTime"></span>
+                    </span>
+                </div>
                 <span class="text-sm text-gray-600">{{ number_format($progress, 0) }}%</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-3">

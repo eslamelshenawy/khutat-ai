@@ -19,6 +19,7 @@ class WizardQuestions extends Component
     public $currentStep = null;
     public $answers = [];
     public $progress = 0;
+    public $lastSaved = null;
 
     public function mount($businessPlan)
     {
@@ -198,6 +199,15 @@ class WizardQuestions extends Component
         $this->plan->update([
             'wizard_data' => $this->answers,
         ]);
+    }
+
+    public function autoSave()
+    {
+        $this->plan->update([
+            'wizard_data' => $this->answers,
+        ]);
+        $this->lastSaved = now()->format('H:i:s');
+        $this->dispatch('auto-saved', time: $this->lastSaved);
     }
 
     protected function calculateProgress()
