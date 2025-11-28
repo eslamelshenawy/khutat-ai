@@ -47,3 +47,19 @@ setup_ollama_complete.bat
 !storage/framework/sessions/.gitkeep
 !storage/framework/views/.gitkeep
 !storage/logs/.gitkeep
+test-infographic.php
+test-pdf.php
+test-slug-simple.php
+test-translation-export.php
+diagnose-export.php
+show-last-error.php
+test-*.php
+diagnose-*.php
+
+# Public test/debug files
+/public/check-code.php
+/public/clear-all-cache.php
+/public/update-system.php
+
+# Deployment test files
+/deployment-files/public/check-code.php
