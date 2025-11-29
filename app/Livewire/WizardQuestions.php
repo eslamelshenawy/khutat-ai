@@ -29,17 +29,19 @@ class WizardQuestions extends Component
         Gate::authorize('view', $this->plan);
 
         // Load active wizard steps with their questions and bolt forms
-        $this->steps = WizardStep::with(['activeQuestions', 'boltForm.sections.fields'])
+        // Load steps as array for Livewire
+        $stepsCollection = WizardStep::with(['activeQuestions', 'boltForm.sections.fields'])
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
+        $this->steps = $stepsCollection->map(fn($step) => $this->stepToArray($step))->values()->toArray();
 
         // Load existing answers if any
         $this->loadAnswers();
 
         // Set first step as current
-        if ($this->steps->count() > 0) {
-            $this->currentStep = $this->stepToArray($this->steps->first());
+        if (count($this->steps) > 0) {
+            $this->currentStep = $this->steps[0];
             $this->calculateProgress();
         }
     }
@@ -58,12 +60,12 @@ class WizardQuestions extends Component
 
     public function goToStep($index)
     {
-        if ($index >= 0 && $index < $this->steps->count()) {
+        if ($index >= 0 && $index < count($this->steps)) {
             // Save current step answers before switching
             $this->saveCurrentStep();
 
             $this->currentStepIndex = $index;
-            $this->currentStep = $this->stepToArray($this->steps->get($index));
+            $this->currentStep = $this->steps[$index];
             $this->calculateProgress();
         }
     }
@@ -78,9 +80,9 @@ class WizardQuestions extends Component
         // Save current answers
         $this->saveCurrentStep();
 
-        if ($this->currentStepIndex < $this->steps->count() - 1) {
+        if ($this->currentStepIndex < count($this->steps) - 1) {
             $this->currentStepIndex++;
-            $this->currentStep = $this->stepToArray($this->steps->get($this->currentStepIndex));
+            $this->currentStep = $this->steps[$this->currentStepIndex];
             $this->calculateProgress();
         } else {
             // Last step - finish wizard
@@ -95,7 +97,7 @@ class WizardQuestions extends Component
 
         if ($this->currentStepIndex > 0) {
             $this->currentStepIndex--;
-            $this->currentStep = $this->stepToArray($this->steps->get($this->currentStepIndex));
+            $this->currentStep = $this->steps[$this->currentStepIndex];
             $this->calculateProgress();
         }
     }
@@ -265,7 +267,7 @@ class WizardQuestions extends Component
 
     protected function calculateProgress()
     {
-        $totalSteps = $this->steps->count();
+        $totalSteps = count($this->steps);
         if ($totalSteps > 0) {
             $this->progress = (($this->currentStepIndex + 1) / $totalSteps) * 100;
         }
