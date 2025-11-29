@@ -8,6 +8,7 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
 
 #[Layout('components.layouts.app')]
 #[Title('أسئلة خطة العمل')]
@@ -15,11 +16,15 @@ class WizardQuestions extends Component
 {
     public BusinessPlan $plan;
     public $steps = [];
+    public $stepNavigation = []; // Lightweight navigation data
     public $currentStepIndex = 0;
     public $currentStep = null;
     public $answers = [];
     public $progress = 0;
     public $lastSaved = null;
+
+    // Cache duration in seconds (1 hour)
+    protected const CACHE_TTL = 3600;
 
     public function mount($businessPlan)
     {
@@ -28,13 +33,15 @@ class WizardQuestions extends Component
         // Check authorization
         Gate::authorize('view', $this->plan);
 
-        // Load active wizard steps with their questions and bolt forms
-        // Load steps as array for Livewire
-        $stepsCollection = WizardStep::with(['activeQuestions', 'boltForm.sections.fields'])
-            ->where('is_active', true)
-            ->orderBy('order')
-            ->get();
-        $this->steps = $stepsCollection->map(fn($step) => $this->stepToArray($step))->values()->toArray();
+        // Load steps from cache or database
+        $this->steps = $this->getCachedSteps();
+
+        // Build lightweight navigation array
+        $this->stepNavigation = collect($this->steps)->map(fn($s) => [
+            'id' => $s['id'],
+            'title' => $s['title'],
+            'icon' => $s['icon'] ?? '📝',
+        ])->toArray();
 
         // Load existing answers if any
         $this->loadAnswers();
@@ -44,6 +51,31 @@ class WizardQuestions extends Component
             $this->currentStep = $this->steps[0];
             $this->calculateProgress();
         }
+    }
+
+    /**
+     * Get wizard steps from cache or load from database
+     */
+    protected function getCachedSteps(): array
+    {
+        $cacheKey = 'wizard_steps_v2';
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () {
+            $stepsCollection = WizardStep::with(['activeQuestions', 'boltForm.sections.fields'])
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+            return $stepsCollection->map(fn($step) => $this->stepToArray($step))->values()->toArray();
+        });
+    }
+
+    /**
+     * Clear cached steps (call when steps are updated)
+     */
+    public static function clearStepsCache(): void
+    {
+        Cache::forget('wizard_steps_v2');
     }
 
     protected function loadAnswers()

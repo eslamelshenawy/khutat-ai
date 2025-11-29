@@ -28,6 +28,8 @@
             @foreach($steps as $index => $step)
             <button
                 wire:click="goToStep({{ $index }})"
+                wire:loading.attr="disabled"
+                wire:loading.class="opacity-50"
                 class="flex flex-col items-center min-w-0 px-2 group {{ $index === $currentStepIndex ? 'opacity-100' : 'opacity-50 hover:opacity-75' }}"
                 title="{{ $step['title'] }}"
             >
@@ -132,15 +134,15 @@
                             @elseif($field['type'] === 'radio')
                                 <div class="space-y-3">
                                     @if(isset($field['options']) && is_array($field['options']))
-                                        @foreach($field['options'] as $optionKey => $option)
+                                        @foreach($field['options'] as $option)
                                         <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
                                             <input
                                                 type="radio"
                                                 wire:model="answers.{{ $fieldKey }}"
-                                                value="{{ is_array($option) ? ($option['value'] ?? $option[0] ?? $optionKey) : $optionKey }}"
+                                                value="{{ $option['value'] ?? '' }}"
                                                 class="w-4 h-4 text-blue-600 focus:ring-blue-500"
                                             >
-                                            <span class="mr-3 text-gray-900">{{ is_array($option) ? ($option['label'] ?? $option[1] ?? $option['value'] ?? $option[0] ?? '') : $option }}</span>
+                                            <span class="mr-3 text-gray-900">{{ $option['label'] ?? '' }}</span>
                                         </label>
                                         @endforeach
                                     @endif
@@ -149,15 +151,15 @@
                             @elseif($field['type'] === 'checkbox' || $field['type'] === 'toggle')
                                 <div class="space-y-3">
                                     @if(isset($field['options']) && is_array($field['options']))
-                                        @foreach($field['options'] as $optionKey => $option)
+                                        @foreach($field['options'] as $option)
                                         <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 wire:model="answers.{{ $fieldKey }}"
-                                                value="{{ is_array($option) ? ($option['value'] ?? $option[0] ?? $optionKey) : $optionKey }}"
+                                                value="{{ $option['value'] ?? '' }}"
                                                 class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                                             >
-                                            <span class="mr-3 text-gray-900">{{ is_array($option) ? ($option['label'] ?? $option[1] ?? $option['value'] ?? $option[0] ?? '') : $option }}</span>
+                                            <span class="mr-3 text-gray-900">{{ $option['label'] ?? '' }}</span>
                                         </label>
                                         @endforeach
                                     @else
@@ -303,16 +305,25 @@
         </div>
 
         <!-- Navigation Buttons -->
-        <div class="flex justify-between items-center gap-4">
+        <div class="flex justify-between items-center gap-4" wire:loading.class="pointer-events-none">
             @if($currentStepIndex > 0)
             <button
                 wire:click="previousStep"
-                class="px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                wire:loading.attr="disabled"
+                wire:loading.class="opacity-50 cursor-wait"
+                class="px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 disabled:opacity-50"
             >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span wire:loading wire:target="previousStep,nextStep,goToStep">
+                    <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+                <svg wire:loading.remove wire:target="previousStep,nextStep,goToStep" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                السابق
+                <span wire:loading.remove wire:target="previousStep">السابق</span>
+                <span wire:loading wire:target="previousStep">جاري التحميل...</span>
             </button>
             @else
             <a
@@ -328,16 +339,26 @@
 
             <button
                 wire:click="nextStep"
-                class="px-6 py-3 bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition flex items-center gap-2 font-bold"
+                wire:loading.attr="disabled"
+                wire:loading.class="opacity-50 cursor-wait"
+                class="px-6 py-3 bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition flex items-center gap-2 font-bold disabled:opacity-50"
             >
+                <span wire:loading wire:target="nextStep,previousStep,goToStep">
+                    <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
                 @if($currentStepIndex < count($steps) - 1)
-                    التالي
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span wire:loading.remove wire:target="nextStep">التالي</span>
+                    <span wire:loading wire:target="nextStep">جاري التحميل...</span>
+                    <svg wire:loading.remove wire:target="nextStep,previousStep,goToStep" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 @else
-                    إنهاء وحفظ
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span wire:loading.remove wire:target="nextStep">إنهاء وحفظ</span>
+                    <span wire:loading wire:target="nextStep">جاري الحفظ...</span>
+                    <svg wire:loading.remove wire:target="nextStep,previousStep,goToStep" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 @endif

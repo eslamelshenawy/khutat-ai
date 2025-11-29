@@ -6,6 +6,7 @@ use App\Models\Template;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Cache;
 
 #[Layout('components.layouts.app')]
 #[Title('إنشاء خطة عمل جديدة')]
@@ -18,21 +19,42 @@ class WizardStart extends Component
     public $companyName = '';
     public $showCustomForm = false;
 
+    // Cache duration in seconds (1 hour)
+    protected const CACHE_TTL = 3600;
+
     public function mount()
     {
-        // Load active and featured templates as array for faster Livewire hydration
-        $this->templates = Template::where('is_active', true)
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn($t) => [
-                'id' => $t->id,
-                'name' => $t->name,
-                'description' => $t->description,
-                'industry_type' => $t->industry_type,
-                'is_featured' => $t->is_featured,
-            ])
-            ->toArray();
+        // Load templates from cache or database
+        $this->templates = $this->getCachedTemplates();
+    }
+
+    /**
+     * Get templates from cache or load from database
+     */
+    protected function getCachedTemplates(): array
+    {
+        return Cache::remember('wizard_templates_v2', self::CACHE_TTL, function () {
+            return Template::where('is_active', true)
+                ->orderBy('is_featured', 'desc')
+                ->orderBy('sort_order')
+                ->get()
+                ->map(fn($t) => [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'description' => $t->description,
+                    'industry_type' => $t->industry_type,
+                    'is_featured' => $t->is_featured,
+                ])
+                ->toArray();
+        });
+    }
+
+    /**
+     * Clear cached templates (call when templates are updated)
+     */
+    public static function clearTemplatesCache(): void
+    {
+        Cache::forget('wizard_templates_v2');
     }
 
     public function selectTemplate($templateId)

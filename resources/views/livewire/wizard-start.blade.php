@@ -12,7 +12,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($templates as $template)
                 <div wire:click="selectTemplate({{ $template['id'] }})"
-                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl {{ $selectedTemplate == $template['id'] ? 'ring-2 ring-blue-500 border-blue-500' : 'border border-gray-200' }}">
+                     wire:loading.class="opacity-50 pointer-events-none"
+                     wire:target="selectTemplate,selectCustom"
+                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl {{ $selectedTemplate == $template['id'] ? 'ring-2 ring-blue-500 border-blue-500' : 'border border-gray-200' }} relative">
+                    <div wire:loading wire:target="selectTemplate({{ $template['id'] }})" class="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
+                        <svg class="animate-spin w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
                     @if($template['is_featured'])
                     <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mb-3">مميز</span>
                     @endif
@@ -29,7 +37,15 @@
 
                 <!-- Custom Template Option -->
                 <div wire:click="selectCustom"
-                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl border-2 border-dashed {{ $showCustomForm ? 'border-blue-500 bg-blue-50' : 'border-gray-300' }}">
+                     wire:loading.class="opacity-50 pointer-events-none"
+                     wire:target="selectTemplate,selectCustom"
+                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl border-2 border-dashed {{ $showCustomForm ? 'border-blue-500 bg-blue-50' : 'border-gray-300' }} relative">
+                    <div wire:loading wire:target="selectCustom" class="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
+                        <svg class="animate-spin w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
                     <div class="flex flex-col items-center justify-center h-full text-center">
                         <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -99,12 +115,21 @@
                 <div class="flex justify-between items-center pt-6 border-t">
                     <button type="button"
                             wire:click="goBack"
-                            class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50"
+                            class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition disabled:opacity-50">
                         العودة
                     </button>
                     <button type="submit"
-                            class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
-                        البدء في إنشاء الخطة
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-wait"
+                            class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 flex items-center gap-2">
+                        <svg wire:loading wire:target="startWizard" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span wire:loading.remove wire:target="startWizard">البدء في إنشاء الخطة</span>
+                        <span wire:loading wire:target="startWizard">جاري الإنشاء...</span>
                     </button>
                 </div>
             </form>
