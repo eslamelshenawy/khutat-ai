@@ -20,11 +20,19 @@ class WizardStart extends Component
 
     public function mount()
     {
-        // Load active and featured templates
+        // Load active and featured templates as array for faster Livewire hydration
         $this->templates = Template::where('is_active', true)
             ->orderBy('is_featured', 'desc')
             ->orderBy('sort_order')
-            ->get();
+            ->get()
+            ->map(fn($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'description' => $t->description,
+                'industry_type' => $t->industry_type,
+                'is_featured' => $t->is_featured,
+            ])
+            ->toArray();
     }
 
     public function selectTemplate($templateId)

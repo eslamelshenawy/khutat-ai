@@ -11,18 +11,18 @@
             <h2 class="text-2xl font-semibold text-gray-900 mb-6">القوالب الجاهزة</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($templates as $template)
-                <div wire:click="selectTemplate({{ $template->id }})"
-                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl {{ $selectedTemplate == $template->id ? 'ring-2 ring-blue-500 border-blue-500' : 'border border-gray-200' }}">
-                    @if($template->is_featured)
+                <div wire:click="selectTemplate({{ $template['id'] }})"
+                     class="bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-xl {{ $selectedTemplate == $template['id'] ? 'ring-2 ring-blue-500 border-blue-500' : 'border border-gray-200' }}">
+                    @if($template['is_featured'])
                     <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mb-3">مميز</span>
                     @endif
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $template->name }}</h3>
-                    <p class="text-gray-600 text-sm mb-3">{{ $template->description }}</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $template['name'] }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ $template['description'] }}</p>
                     <div class="flex items-center text-sm text-gray-500">
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
-                        {{ $template->industry_type }}
+                        {{ $template['industry_type'] }}
                     </div>
                 </div>
                 @endforeach
