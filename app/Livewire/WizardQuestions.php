@@ -310,11 +310,29 @@ class WizardQuestions extends Component
                         }
                         $type = strtolower($type);
 
+                        // Normalize options to consistent format
+                        $options = [];
+                        if (is_array($field->options)) {
+                            foreach ($field->options as $key => $value) {
+                                if (is_array($value)) {
+                                    $options[] = [
+                                        'value' => $value['value'] ?? $value[0] ?? $key,
+                                        'label' => $value['label'] ?? $value[1] ?? $value['value'] ?? $value[0] ?? $key,
+                                    ];
+                                } else {
+                                    $options[] = [
+                                        'value' => $key,
+                                        'label' => $value,
+                                    ];
+                                }
+                            }
+                        }
+
                         return [
                             'id' => $field->id,
                             'name' => $field->name,
                             'type' => $type,
-                            'options' => $field->options,
+                            'options' => $options,
                             'is_required' => $field->is_required ?? false,
                             'html_id' => $field->html_id ?? 'bolt_field_' . $field->id,
                         ];

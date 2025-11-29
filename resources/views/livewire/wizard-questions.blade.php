@@ -122,8 +122,8 @@
                                     <option value="">اختر...</option>
                                     @if(isset($field['options']) && is_array($field['options']))
                                         @foreach($field['options'] as $option)
-                                        <option value="{{ is_array($option) ? ($option['value'] ?? $option[0] ?? '') : $option }}">
-                                            {{ is_array($option) ? ($option['label'] ?? $option[1] ?? $option['value'] ?? $option[0] ?? '') : $option }}
+                                        <option value="{{ $option['value'] ?? '' }}">
+                                            {{ $option['label'] ?? '' }}
                                         </option>
                                         @endforeach
                                     @endif
