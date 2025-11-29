@@ -101,7 +101,7 @@
                                        class="flex-1 bg-blue-600 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">
                                         عرض
                                     </a>
-                                    <a href="{{ route('wizard.steps', $plan) }}"
+                                    <a href="{{ route('chapters.edit', $plan) }}"
                                        class="flex-1 bg-green-600 text-white text-center px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium">
                                         تحرير
                                     </a>
