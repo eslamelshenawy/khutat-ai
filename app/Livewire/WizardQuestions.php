@@ -28,6 +28,8 @@ class WizardQuestions extends Component
     // AI suggestion properties
     public $aiGenerating = false;
     public $aiGeneratingField = null;
+    public $chatInput = "";
+    public $chatMessages = [];
 
     // Cache duration in seconds (1 hour)
     protected const CACHE_TTL = 3600;
@@ -484,4 +486,91 @@ class WizardQuestions extends Component
     {
         return view('livewire.wizard-questions');
     }
+
+    /**
+     * Generate AI content for all empty textarea fields in current step
+     */
+    public function generateAllAI()
+    {
+        if (!isset($this->currentStep["bolt_form_sections"])) {
+            $this->dispatch("notify", ["type" => "info", "message" => "لا توجد حقول للتوليد"]);
+            return;
+        }
+        
+        foreach ($this->currentStep["bolt_form_sections"] as $section) {
+            foreach ($section["fields"] as $field) {
+                if (in_array($field["type"], ["textarea", "richeditor", "paragraph"])) {
+                    $fieldKey = "bolt_" . $field["id"];
+                    if (empty($this->answers[$fieldKey])) {
+                        $this->generateAISuggestion($fieldKey, $field["name"]);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Improve all content in current step using AI
+     */
+    public function improveAllContent()
+    {
+        if (!isset($this->currentStep["bolt_form_sections"])) {
+            $this->dispatch("notify", ["type" => "info", "message" => "لا يوجد محتوى للتحسين"]);
+            return;
+        }
+        
+        try {
+            $ollama = new OllamaService();
+            
+            foreach ($this->currentStep["bolt_form_sections"] as $section) {
+                foreach ($section["fields"] as $field) {
+                    if (in_array($field["type"], ["textarea", "richeditor", "paragraph"])) {
+                        $fieldKey = "bolt_" . $field["id"];
+                        if (!empty($this->answers[$fieldKey])) {
+                            $prompt = "حسّن النص التالي واجعله أكثر احترافية مع الحفاظ على المعنى:\n\n" . $this->answers[$fieldKey];
+                            $improved = $ollama->chatWithAI($prompt);
+                            $this->answers[$fieldKey] = $improved;
+                        }
+                    }
+                }
+            }
+            
+            $this->dispatch("notify", ["type" => "success", "message" => "تم تحسين المحتوى بنجاح!"]);
+        } catch (\Exception $e) {
+            Log::error("Improve content failed", ["error" => $e->getMessage()]);
+            $this->dispatch("notify", ["type" => "error", "message" => "حدث خطأ: " . $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * Send chat message to AI assistant
+     */
+    public function sendChatMessage()
+    {
+        if (empty(trim($this->chatInput))) {
+            return;
+        }
+        
+        try {
+            $ollama = new OllamaService();
+            
+            // Add user message
+            $this->chatMessages[] = ["role" => "user", "content" => $this->chatInput];
+            
+            // Build context
+            $context = "أنت مساعد ذكي لكتابة خطط العمل. الفصل الحالي: " . ($this->currentStep["title"] ?? "");
+            $prompt = $context . "\n\nسؤال المستخدم: " . $this->chatInput;
+            
+            $response = $ollama->chatWithAI($prompt);
+            
+            // Add AI response
+            $this->chatMessages[] = ["role" => "assistant", "content" => $response];
+            
+            $this->chatInput = "";
+        } catch (\Exception $e) {
+            Log::error("Chat failed", ["error" => $e->getMessage()]);
+            $this->chatMessages[] = ["role" => "assistant", "content" => "عذراً، حدث خطأ: " . $e->getMessage()];
+        }
+    }
+
 }
