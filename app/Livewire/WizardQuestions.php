@@ -4,11 +4,13 @@ namespace App\Livewire;
 
 use App\Models\BusinessPlan;
 use App\Models\WizardStep;
+use App\Services\OllamaService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 #[Layout('components.layouts.app')]
 #[Title('أسئلة خطة العمل')]
@@ -22,6 +24,10 @@ class WizardQuestions extends Component
     public $answers = [];
     public $progress = 0;
     public $lastSaved = null;
+
+    // AI suggestion properties
+    public $aiGenerating = false;
+    public $aiGeneratingField = null;
 
     // Cache duration in seconds (1 hour)
     protected const CACHE_TTL = 3600;
@@ -401,6 +407,77 @@ class WizardQuestions extends Component
 
         // Redirect to chapters editor
         return redirect()->route('chapters.edit', ['businessPlan' => $this->plan->id]);
+    }
+
+
+    /**
+     * Generate AI suggestion for a field
+     */
+    public function generateAISuggestion(string $fieldKey, string $fieldName)
+    {
+        $this->aiGenerating = true;
+        $this->aiGeneratingField = $fieldKey;
+
+        try {
+            $ollama = new OllamaService();
+            $prompt = $this->buildFieldSuggestionPrompt($fieldName);
+            $suggestion = $ollama->chatWithAI($prompt);
+
+            // Set the suggestion as the field value
+            $this->answers[$fieldKey] = $suggestion;
+
+            $this->dispatch("notify", [
+                "type" => "success",
+                "message" => "تم توليد الاقتراح بنجاح!",
+            ]);
+        } catch (\Exception $e) {
+            Log::error("AI suggestion failed", [
+                "field" => $fieldKey,
+                "error" => $e->getMessage(),
+            ]);
+
+            $this->dispatch("notify", [
+                "type" => "error",
+                "message" => "حدث خطأ في توليد الاقتراح: " . $e->getMessage(),
+            ]);
+        } finally {
+            $this->aiGenerating = false;
+            $this->aiGeneratingField = null;
+        }
+    }
+
+    /**
+     * Build prompt for AI suggestion based on field name and context
+     */
+    protected function buildFieldSuggestionPrompt(string $fieldName): string
+    {
+        $planName = $this->plan->name ?? "خطة عمل";
+        $currentStepTitle = $this->currentStep["title"] ?? "";
+
+        // Gather context from existing answers
+        $context = "";
+        foreach ($this->answers as $key => $value) {
+            if (!empty($value) && is_string($value)) {
+                $context .= $value . "\n";
+            }
+        }
+
+        return "أنت مساعد ذكي لكتابة خطط العمل باللغة العربية.
+
+اسم خطة العمل: {$planName}
+القسم الحالي: {$currentStepTitle}
+السؤال المطلوب الإجابة عليه: {$fieldName}
+
+المعلومات المتوفرة حتى الآن:
+{$context}
+
+اكتب إجابة مناسبة ومهنية للسؤال أعلاه. يجب أن تكون الإجابة:
+- واضحة ومختصرة
+- مناسبة لسياق خطة العمل
+- باللغة العربية الفصحى
+- عملية وقابلة للتطبيق
+
+الإجابة:";
     }
 
     public function render()

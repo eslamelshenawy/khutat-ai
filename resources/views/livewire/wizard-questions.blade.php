@@ -94,12 +94,15 @@
                                 >
 
                             @elseif(in_array($field['type'], ['textarea', 'richeditor', 'paragraph']))
-                                <textarea
+                                <div class="relative">
+                                    <textarea
                                     wire:model.live.debounce.500ms="answers.{{ $fieldKey }}"
                                     rows="5"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="أدخل إجابتك هنا..."
                                 ></textarea>
+                                    <button type="button" wire:click="generateAISuggestion('{{ $fieldKey }}', '{{ $field["name"] }}')" wire:loading.attr="disabled" wire:target="generateAISuggestion" class="absolute left-2 bottom-2 px-3 py-1.5 bg-gradient-to-l from-purple-600 to-indigo-600 text-white text-xs rounded-lg hover:from-purple-700 hover:to-indigo-700 transition flex items-center gap-1.5 disabled:opacity-50" title="اقتراح بالذكاء الاصطناعي"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><span>AI</span></button>
+                                </div>
 
                             @elseif(in_array($field['type'], ['number', 'numberinput']))
                                 <input
